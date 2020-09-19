@@ -92,17 +92,17 @@ print_row(CurrentRow, BoardSize, BoardState):-
 
 % Print the board's row according to its state,
 % Skip the -1 slots indicating excluded slots
-print_row_state([-1|Tail]):-
-    print_row_state(Tail), !.
+print_row_state([-1|RestOfSlots]):-
+    print_row_state(RestOfSlots), !.
 
 % Print the board's row according to its current state
-print_row_state([Head|Tail]):-
+print_row_state([CurrentSlot|RestOfSlots]):-
     (
-        Head = 0, slot_legend(EmptySymbol, empty), write(EmptySymbol), !;
-        write(Head)
+        CurrentSlot = 0, slot_legend(EmptySymbol, empty), write(EmptySymbol), !;
+        write(CurrentSlot)
     ),
     write(' '),
-    print_row_state(Tail).
+    print_row_state(RestOfSlots).
 
 print_row_state([]):- !.
 

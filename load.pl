@@ -1,4 +1,5 @@
 :- [
+    gui,
     board,
     heuristics,
     game

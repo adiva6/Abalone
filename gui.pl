@@ -1,3 +1,8 @@
+%% -----------------------------------------------------------------------------
+%% Import necessary board utilities
+:- [board].
+%% -----------------------------------------------------------------------------
+
 % Display the board's current state
 display_board(BoardSize, BoardState):-
     display_top_border(BoardSize),
@@ -81,9 +86,25 @@ print_row(CurrentRow, BoardSize, BoardState):-
     write(CurrentRow),
     write('-'),
     print_start_row_separator(CurrentRow, HalfBoard),
-    SlotsAmount is BoardSize - abs(HalfBoard - CurrentRow),
-    print_char_repeat('. ', 1, SlotsAmount),
+    nth0(CurrentRow, BoardState, RowState),
+    print_row_state(RowState),
     print_end_row_separator(CurrentRow, BoardSize).
+
+% Print the board's row according to its state,
+% Skip the -1 slots indicating excluded slots
+print_row_state([-1|Tail]):-
+    print_row_state(Tail), !.
+
+% Print the board's row according to its current state
+print_row_state([Head|Tail]):-
+    (
+        Head = 0, slot_legend(EmptySymbol, empty), write(EmptySymbol), !;
+        write(Head)
+    ),
+    write(' '),
+    print_row_state(Tail).
+
+print_row_state([]):- !.
 
 % Print the separator that indicates the beginning of a row in the board
 print_start_row_separator(CurrentRow, HalfBoard):-

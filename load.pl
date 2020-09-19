@@ -2,7 +2,8 @@
     gui,
     board,
     heuristics,
-    game
+    game,
+    user_input
 ].
 
 % This method serves vscode as a starting point for the program.

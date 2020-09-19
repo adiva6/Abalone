@@ -7,19 +7,12 @@
 %   3- \ W W /
 %        ---
 
-init_board:- 
-    retractall(slot_state(_,_)),
-    retractall(player_score(_,_)),
-
-    assert(slot_state(slot(1, a), color(black))), 
-    assert(slot_state(slot(1, b), color(black))),
-    assert(slot_state(slot(2, a), color(empty))),
-    assert(slot_state(slot(2, b), color(empty))),
-    assert(slot_state(slot(2, c), color(empty))),
-    assert(slot_state(slot(3, b), color(white))),
-    assert(slot_state(slot(3, c), color(white))),
-    assert(player_score(white, 0)),
-    assert(player_score(black, 0)).
+init_board(3, EmptyBoard):- 
+    EmptyBoard = [
+        ['B', 'B', -1],
+        [0, 0, 0],
+        [-1, 'W', 'W']
+    ].
 
 slot_legend('W', white).
 slot_legend('B', black).

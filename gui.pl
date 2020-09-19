@@ -8,7 +8,7 @@ display_board(BoardSize, BoardState):-
 
 % Display the board's top border: including the top indices (A, B...) and the separator line
 display_top_border(BoardSize):-
-    SpaceLimit is floor(BoardSize / 2) + 7,
+    SpaceLimit is floor(BoardSize / 2) + 8,
     print_char_repeat(' ', 1, SpaceLimit),
     IndexLimit is ceil(BoardSize / 2),
     print_index_row('A', 1, IndexLimit),
@@ -27,11 +27,13 @@ print_pointers_row(BoardSize):-
     print_char_repeat('/ ', 1, HalfBoard),
     NextCharCode is HalfBoard + 65,
     char_code(NextIndexChar, NextCharCode),
+    write(' '),
     write(NextIndexChar).
 
 % Print the line of '-' that indicates the beginning of the game board itself
 print_separator_row(BoardSize):-
-    print_char_repeat('-', 1, BoardSize),
+    SeparatorLimit is BoardSize + 1,
+    print_char_repeat('-', 1, SeparatorLimit),
     write('  / '),
     HalfBoard is ceil(BoardSize / 2),
     NextCharCode is HalfBoard + 66,
@@ -79,7 +81,7 @@ print_row(CurrentRow, BoardSize, BoardState):-
     write(CurrentRow),
     write('-'),
     print_start_row_separator(CurrentRow, HalfBoard),
-    SlotsAmount is BoardSize - abs(HalfBoard - CurrentRow) - 1,
+    SlotsAmount is BoardSize - abs(HalfBoard - CurrentRow),
     print_char_repeat('. ', 1, SlotsAmount),
     print_end_row_separator(CurrentRow, BoardSize).
 
@@ -110,6 +112,7 @@ print_end_row_separator(CurrentRow, BoardSize):-
 
 % Print the bottom border of the board
 display_bottom_border(BoardSize):-
-    SpaceLimit is ceil(BoardSize / 2) + 3,
+    SpaceLimit is ceil(BoardSize / 2) + 4,
     print_char_repeat(' ', 1, SpaceLimit),
-    print_char_repeat('-', 1, BoardSize).
+    SeparatorLimit is BoardSize + 1,
+    print_char_repeat('-', 1, SeparatorLimit).

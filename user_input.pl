@@ -1,3 +1,4 @@
+% Get the board size as input from the user
 pick_board_size(BoardSize):-
     writeln("Please select a board size (must be an odd number between 5 and 17):"),
     repeat,
@@ -13,6 +14,7 @@ pick_board_size(BoardSize):-
         fail
     ).
 
+% Get the difficulty level as input from the user
 pick_difficulty_level(Level):-
     writeln("Please select a difficulty level:"),
     writeln("1- Beginner"),

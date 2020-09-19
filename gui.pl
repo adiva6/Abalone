@@ -17,8 +17,8 @@ display_top_border(BoardSize):-
     print_char_repeat(' ', 1, SlashLimit),
     print_pointers_row(BoardSize),
     nl,
-    DunderLimit is SlashLimit - 2,
-    print_char_repeat(' ', 1, DunderLimit),
+    SeparatorLimit is SlashLimit - 2,
+    print_char_repeat(' ', 1, SeparatorLimit),
     print_separator_row(BoardSize).
 
 % Print the line of '/' in the board's top border

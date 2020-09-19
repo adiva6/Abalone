@@ -1,3 +1,4 @@
+% Display the board's current state
 display_board(BoardSize, BoardState):-
     display_top_border(BoardSize),
     nl,
@@ -5,11 +6,12 @@ display_board(BoardSize, BoardState):-
     nl,
     display_bottom_border(BoardSize).
 
+% Display the board's top border: including the top indices (A, B...) and the separator line
 display_top_border(BoardSize):-
     SpaceLimit is floor(BoardSize / 2) + 7,
     print_char_repeat(' ', 1, SpaceLimit),
     IndexLimit is ceil(BoardSize / 2),
-    print_row_index('A', 1, IndexLimit),
+    print_index_row('A', 1, IndexLimit),
     nl,
     SlashLimit is SpaceLimit - 1,
     print_char_repeat(' ', 1, SlashLimit),
@@ -19,6 +21,7 @@ display_top_border(BoardSize):-
     print_char_repeat(' ', 1, DunderLimit),
     print_separator_row(BoardSize).
 
+% Print the line of '/' in the board's top border
 print_pointers_row(BoardSize):-
     HalfBoard is ceil(BoardSize / 2),
     print_char_repeat('/ ', 1, HalfBoard),
@@ -26,6 +29,7 @@ print_pointers_row(BoardSize):-
     char_code(NextIndexChar, NextCharCode),
     write(NextIndexChar).
 
+% Print the line of '-' that indicates the beginning of the game board itself
 print_separator_row(BoardSize):-
     print_char_repeat('-', 1, BoardSize),
     write('  / '),
@@ -34,6 +38,7 @@ print_separator_row(BoardSize):-
     char_code(NextIndexChar, NextCharCode),
     write(NextIndexChar).
 
+% Prints the same character 'Char' for 'Limit' times
 print_char_repeat(Char, CurrentIndex, Limit):-
     write(Char),
     CurrentIndex < Limit, !,
@@ -42,7 +47,8 @@ print_char_repeat(Char, CurrentIndex, Limit):-
 
 print_char_repeat(_, Limit, Limit).
 
-print_row_index(Char, CurrentIndex, Limit):-
+% Print the row of top indices (A, B and etc)
+print_index_row(Char, CurrentIndex, Limit):-
     write(Char),
     write(' '),
     CurrentIndex < Limit, !,
@@ -50,10 +56,11 @@ print_row_index(Char, CurrentIndex, Limit):-
     char_code(Char, CharCode),
     NextCharCode is CharCode + 1,
     char_code(NextChar, NextCharCode),
-    print_row_index(NextChar, NextIndex, Limit).
+    print_index_row(NextChar, NextIndex, Limit).
 
-print_row_index(_, Limit, Limit).
+print_index_row(_, Limit, Limit).
 
+% Display the board's current state
 display_current_board(CurrentRow, BoardSize, BoardState):-
     print_row(CurrentRow, BoardSize, BoardState),
     CurrentRow < BoardSize, !,
@@ -63,6 +70,7 @@ display_current_board(CurrentRow, BoardSize, BoardState):-
 
 display_current_board(BoardSize, BoardSize, _).
 
+% Print a single row in the current game board
 print_row(CurrentRow, BoardSize, BoardState):-
     HalfBoard is ceil(BoardSize / 2),
     Digits is div(CurrentRow, 10),
@@ -75,6 +83,7 @@ print_row(CurrentRow, BoardSize, BoardState):-
     print_char_repeat('. ', 1, SlotsAmount),
     print_end_row_separator(CurrentRow, BoardSize).
 
+% Print the separator that indicates the beginning of a row in the board
 print_start_row_separator(CurrentRow, HalfBoard):-
     (
         CurrentRow < HalfBoard, write('/ ');
@@ -82,6 +91,7 @@ print_start_row_separator(CurrentRow, HalfBoard):-
         write('\\ ')
     ).
 
+% Print the separator that indicates the end of a row in the board
 print_end_row_separator(CurrentRow, BoardSize):-
     HalfBoard is ceil(BoardSize / 2),
     (
@@ -98,6 +108,7 @@ print_end_row_separator(CurrentRow, BoardSize):-
         true
     ).
 
+% Print the bottom border of the board
 display_bottom_border(BoardSize):-
     SpaceLimit is ceil(BoardSize / 2) + 3,
     print_char_repeat(' ', 1, SpaceLimit),

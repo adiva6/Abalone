@@ -1,6 +1,28 @@
-% % level of centerability, based on distance from center of each player's balls
-% % score will be stored in db and changed along with board state
-% centerability_score(BlackScore, WhiteScore).
+% -------------------------------------------------------------------------------
+% In all of the following heuristics, the player with black marbles is
+% considered as the max player
+% -------------------------------------------------------------------------------
+
+% -------------------------------------------------------------------------------
+% Import necessary board utilities
+:- [board].
+% -------------------------------------------------------------------------------
+
+% Level of centerability, based on distance from center of each player's balls
+% Score will be stored in db and changed along with board state
+centerability_score(BoardSize, BoardState, HeuristicValue):-
+    BoardCenter is ceil(BoardSize / 2),
+    findall(RowIndex:ColIndex, black_ball(BoardState, RowIndex, ColIndex), BlackLocations),
+    findall(RowIndex:ColIndex, white_ball(BoardState, RowIndex, ColIndex), WhiteLocations),
+    calculate_distance_from_center(BoardCenter, BlackLocations, BlackDistance),
+    calculate_distance_from_center(BoardCenter, WhiteLocations, WhiteDistance),
+    HeuristicValue is BlackDistance - WhiteDistance.
+
+calculate_distance_from_center(BoardCenter, [CurrentLocation|Locations], TotalDistance):-
+    CurrentLocation = RowIndex:ColIndex,
+    CurrentLocationDistance is abs(RowIndex - BoardCenter) + abs(ColIndex - BoardCenter),
+    calculate_distance_from_center(BoardCenter, Locations, RestOfDistance),
+    TotalDistance is CurrentLocationDistance + RestOfDistance.
 
 % % level of threeability, based on number of triples in a row of each player's balls
 % % score will be stored in db and changed along with board state

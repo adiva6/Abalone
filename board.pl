@@ -1,3 +1,4 @@
+:- dynamic board_size/1.
 % TODO: bigger board, this is a stub.
 %           A B C
 %          / / /
@@ -18,7 +19,8 @@ init_board(3, EmptyBoard):-
 
 slot_legend('W', white).
 slot_legend('B', black).
-slot_legend('.', empty).
+slot_legend(0, empty).
+slot_legend(-1, border).
 
 player(white).
 player(black).
@@ -53,37 +55,78 @@ direction_in_axis(A, direction(X,Y)):-
         axis(A, direction(W,V))
     ).
 
-% TODO
-% slot(Num, Letter)
+letter_to_row(L, I):-
+    char_code(L, LCode),
+    I is LCode - 64.
 
-% TODO
-% % matches slot's color, depends on board state
-% % slot_color(Board, Slot, Color)
-% slot_color(Board, slot(Num, Letter), color(Color)).
+% matches slot content, depends on board state
+slot_by_index(BoardState, RowIndex, ColIndex, Slot):-
+    nth0(RowIndex, BoardState, RowSlots),
+    nth0(ColIndex, RowSlots, Slot).
 
-% TODO
-% % matches slot that contain a white ball, depends on board state
-% % white_ball(Board, Slot)
-% white_ball(Board, slot(Num, Letter)).
+% matches slot that contain a white ball, depends on board state
+white_ball(BoardState, RowIndex, ColIndex):-
+    slot_by_index(BoardState, RowIndex, ColIndex, 'W').
 
-% TODO
-% % matches slots that contain a black ball, depends on board state
-% % black_ball(Board, Slot)
-% black_ball(Board, slot(Num, Letter)).
+% matches slots that contain a black ball, depends on board state
+black_ball(BoardState, RowIndex, ColIndex):-
+    slot_by_index(BoardState, RowIndex, ColIndex, 'B').
 
-% TODO
-% % matches slots that contain no ball, depends on board state
-% % no_ball(Board, Slot)
-% no_ball(Board, slot(Num, Letter)).
+% matches slots that contain no ball, depends on board state
+no_ball(BoardState, RowIndex, ColIndex):-
+    slot_by_index(BoardState, RowIndex, ColIndex, 0).
+
+% matches border slots, depends on board state (though this remains static throughout the game)
+border(BoardState, RowIndex, ColIndex):-
+    slot_by_index(BoardState, RowIndex, ColIndex, -1).
+
+% matches all slots of specified horizontal row
+horizontal_row(BoardState, RowIndex, Slots):-
+    nth0(RowIndex, BoardState, Slots).
+
+% matches all slots of specified vertical row
+% vertical_row(BoardState, ColIndex, Slots)
+vertical_row(BoardState, ColIndex, Slots):-
+    vertical_row(BoardState, 0, ColIndex, Slots).
+
+vertical_row(BoardState, RowIndex, ColIndex, [Slot|Slots]):-
+    board_size(BoardSize),
+    RowIndex < BoardSize, !,
+    NextRowIndex is RowIndex + 1,
+    slot_by_index(BoardState, RowIndex, ColIndex, Slot),
+    vertical_row(BoardState, NextRowIndex, ColIndex, Slots).
 
 
-% TODO
-% % matches all slots of specified row
-% row(slot(Num, Letter), axis(X, Y), Slots).
+vertical_row(BoardState, RowIndex, ColIndex, [Slot, -1]):-
+    board_size(RowIndex),
+    slot_by_index(BoardState, RowIndex, ColIndex, Slot).
 
-% TODO
-% % size of row of given slot, in given axis
-% row_size(slot(Num, Letter), axis(X, Y), Size).
+% matches all slots of specified diagonal row
+diagonal_row(BoardState, RowIndex, Slots):-
+    (
+    	board_size(BoardSize),
+    	HalfSize is ceil(BoardSize / 2),
+        RowIndex < HalfSize, 
+        FirstRowIndex is HalfSize - RowIndex,
+        diagonal_row(BoardState, FirstRowIndex, 0, Slots), !
+    );(
+      	board_size(BoardSize),
+      	HalfSize is ceil(BoardSize / 2),
+        FirstColIndex is RowIndex - HalfSize,
+        diagonal_row(BoardState, 0, FirstColIndex, Slots), !
+    ).
+
+diagonal_row(BoardState, RowIndex, ColIndex, [Slot|Slots]):-
+    board_size(BoardSize),
+    (RowIndex < BoardSize, ColIndex < BoardSize), !,
+    slot_by_index(BoardState, RowIndex, ColIndex, Slot),
+    NextRowIndex is RowIndex + 1,
+    NextColIndex is ColIndex + 1,
+    diagonal_row(BoardState, NextRowIndex, NextColIndex, Slots).
+
+diagonal_row(BoardState, RowIndex, ColIndex, [Slot, -1]):-
+    (board_size(RowIndex);board_size(ColIndex)),
+    slot_by_index(BoardState, RowIndex, ColIndex, Slot).
 
 % TODO
 % % matches if all slots are aligned in same axis

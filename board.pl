@@ -29,21 +29,21 @@ player(black).
 direction(1, 0).
 direction(-1, 0).
 % y //////////
-direction(1, -1).
-direction(-1, 1).
+direction(0, 1).
+direction(0, -1).
 % z \\\\\\\\\\
 direction(1, 1).
 direction(-1, -1).
 
 axis(x, direction(1, 0)).
-axis(y, direction(1, -1)).
+axis(y, direction(0, 1)).
 axis(z, direction(1, 1)).
 
 % TODO: less hard-coded, more logical
 opposite_direction(direction(1, 0), direction(-1, 0)).
 opposite_direction(direction(-1, 0), direction(1, 0)).
-opposite_direction(direction(1, -1), direction(-1, 1)).
-opposite_direction(direction(-1, 1), direction(1, -1)).
+opposite_direction(direction(0, 1), direction(0, -1)).
+opposite_direction(direction(0, -1), direction(0, 1)).
 opposite_direction(direction(1, 1), direction(-1, -1)).
 opposite_direction(direction(-1, -1), direction(1, 1)).
 
@@ -128,9 +128,10 @@ diagonal_row(BoardState, RowIndex, ColIndex, [Slot, -1]):-
     (board_size(RowIndex);board_size(ColIndex)),
     slot_by_index(BoardState, RowIndex, ColIndex, Slot).
 
-% TODO
-% % matches if all slots are aligned in same axis
-% is_directed_array_of_slots(Slots, axis(X, Y)).
+
+next_slot_location(SlotRow, SlotCol, direction(X,Y), NextSlotRow, NextSlotCol):-
+    NextSlotRow is SlotRow + X,
+    NextSlotCol is SlotCol + Y.
 
 % TODO
 % % MovedBalls array will be the set of balls which will be moved by a move

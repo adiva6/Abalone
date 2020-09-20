@@ -1,11 +1,15 @@
+% -------------------------------------------------------------------------------
+% Import heuristic
+:- [heuristics].
+% -------------------------------------------------------------------------------
+
 alphabeta(Depth, Pos, Alpha, Beta, GoodPos, Val):-
     Depth > 0,
     moves(Pos, Poslist), !,
     NewDepth is Depth - 1,
     boundedbest(NewDepth, Poslist, Alpha, Beta, GoodPos, Val);
-    staticval(Pos, Val).
-alphabeta(_, Pos, _, _, _, Val):-
-    staticval(Pos, Val).
+    board_size(BoardSize),
+    centerability_score(BoardSize, Pos, Val).
 
 boundedbest(Depth, [Pos|Poslist], Alpha, Beta, GoodPos, GoodVal) :-
     alphabeta(Depth, Pos, Alpha, Beta, _, Val),

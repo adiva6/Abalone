@@ -24,6 +24,8 @@ calculate_distance_from_center(BoardCenter, [CurrentLocation|Locations], TotalDi
     calculate_distance_from_center(BoardCenter, Locations, RestOfDistance),
     TotalDistance is CurrentLocationDistance + RestOfDistance.
 
+calculate_distance_from_center(_, [], 0):- !.
+
 % % level of threeability, based on number of triples in a row of each player's balls
 % % score will be stored in db and changed along with board state
 % threeability_score(BlackScore, WhiteScore).

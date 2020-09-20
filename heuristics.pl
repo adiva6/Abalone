@@ -18,6 +18,8 @@ centerability_score(BoardSize, BoardState, HeuristicValue):-
     calculate_distance_from_center(BoardCenter, WhiteLocations, WhiteDistance),
     HeuristicValue is BlackDistance - WhiteDistance.
 
+% Get a list of locations and sum up their distances from the center
+% of the board
 calculate_distance_from_center(BoardCenter, [CurrentLocation|Locations], TotalDistance):-
     CurrentLocation = RowIndex:ColIndex,
     CurrentLocationDistance is abs(RowIndex - BoardCenter) + abs(ColIndex - BoardCenter),

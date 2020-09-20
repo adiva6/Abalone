@@ -24,6 +24,8 @@ slot_legend(-1, border).
 
 player(white).
 player(black).
+other_player(white, black).
+other_player(black, white).
 
 % x ----------
 direction(1, 0).
@@ -128,28 +130,64 @@ diagonal_row(BoardState, RowIndex, ColIndex, [Slot, -1]):-
     (board_size(RowIndex);board_size(ColIndex)),
     slot_by_index(BoardState, RowIndex, ColIndex, Slot).
 
+diagonal_row_index_by_slot(SlotRow, SlotCol, Index):-
+    (SlotRow > 0, SlotCol > 0), !,
+    PrevSlotRow is SlotRow - 1,
+    PrevSlotCol is SlotCol - 1,
+    diagonal_row_index_by_slot(PrevSlotRow, PrevSlotCol, Index).
+
+diagonal_row_index_by_slot(SlotRow, SlotCol, Index):-
+    (SlotRow = 0 ; SlotCol = 0), !, 
+    (
+        SlotCol = 0,
+        board_size(BoardSize),
+        HalfSize is ceil(BoardSize / 2),
+        Index is HalfSize + SlotRow
+    );(
+        board_size(BoardSize),
+        HalfSize is ceil(BoardSize / 2),
+        Index is HalfSize - SlotCol
+    ).
+
+diagonal_row_by_slot(BoardState, SlotRow, SlotCol, Slots):-
+    diagonal_row_index_by_slot(SlotRow, SlotCol, RowIndex),
+    diagonal_row(BoardState, RowIndex, Slots).
+
 
 next_slot_location(SlotRow, SlotCol, direction(X,Y), NextSlotRow, NextSlotCol):-
     NextSlotRow is SlotRow + X,
     NextSlotCol is SlotCol + Y.
 
-% TODO
-% % MovedBalls array will be the set of balls which will be moved by a move
-% moved_balls(move(FirstBall, direction(X, Y)), MovedBalls).
+legal_move(PlayerColor, [C, C, C, O, O, N]):-
+    validate_colors(PlayerColor, C,O,N), !.
 
-% TODO
-% % matches for all moves that can be played by given player
-% legal_move(Player, move(FirstSlot, Direction)).
+legal_move(PlayerColor, [C, C, C, O, N]):-
+    validate_colors(PlayerColor, C,O,N), !.
+
+legal_move(PlayerColor, [C, C, C, N]):-
+    validate_colors(PlayerColor, C,_,N), !.
+
+legal_move(PlayerColor, [C, C, O, N]):-
+    validate_colors(PlayerColor, C,O,N), !.
+
+legal_move(PlayerColor, [C, C, N]):-
+    validate_colors(PlayerColor, C,_,N), !.
+
+legal_move(PlayerColor, [C, N]):-
+    validate_colors(PlayerColor, C,_,N), !.
+
+
+validate_colors(PlayerColor, C,O,N):-
+    slot_legend(C, PlayerColor),
+    (slot_legend(N, empty) ; slot_legend(N, border)),
+    other_player(PlayerColor, OtherPlayerColor),
+    slot_legend(O, OtherPlayerColor).
+
 
 % TODO
 % % alters board state and player scores if necessary
 % make_move(move(FirstBall, Direction)).
 
-% TODO
-% % a "move" object that defines a possible move
-% move(FirstBall, Direction).
-
-% TODO
-% % matches for all balls which are owned by a player and aligned in a row, in any direction
-% three_aligned_balls(Balls).
-% two_aligned_balls(Balls).
+% % TODO
+% % a "move" object, defines a legal move
+% move(BoardState, PlayerColor, RowIndex, ColIndex, Direction, NextBoardState).

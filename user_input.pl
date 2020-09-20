@@ -9,7 +9,10 @@ pick_board_size(BoardSize):-
         UserInput =< 17,
         Remainder is mod(UserInput, 2),
         Remainder = 1,
-        BoardSize = UserInput, !;
+        BoardSize = UserInput,
+        retract(board_size(_)),
+        assert(board_size(BoardSize)), 
+        !;
         writeln("Invalid input. Please enter a valid board size."),
         fail
     ).

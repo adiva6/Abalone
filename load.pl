@@ -2,6 +2,7 @@
     gui,
     board,
     heuristics,
+    user_input,
     game
 ].
 

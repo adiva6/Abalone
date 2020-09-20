@@ -36,6 +36,8 @@ pick_difficulty_level(Level):-
         fail
     ).
 
+% Get the location of the ball the player chooses to move next. The ball chosen
+% will be the one that pushes the other balls in the convoy (if there are any).
 pick_ball_to_move(BoardState, Player, Row, Column):-
     board_size(BoardSize),
     writeln("Pick a ball to move. The ball will push other balls in the direction you choose."),
@@ -50,6 +52,8 @@ pick_ball_to_move(BoardState, Player, Row, Column):-
         fail
     ).
 
+% Get a valid row number from the user. It must be within the
+% bounds of the board.
 pick_row_number(BoardSize, Row):-
     repeat,
     (
@@ -60,6 +64,8 @@ pick_row_number(BoardSize, Row):-
         fail
     ).
 
+% Get a valid column number from the user. It must be within the
+% bounds of the board.
 pick_col_number(BoardSize, Col):-
     repeat,
     (
@@ -71,6 +77,9 @@ pick_col_number(BoardSize, Col):-
         fail
     ).
 
+% Present all possible moves for the current player given the ball he chose to move.
+% DestRow and DestCol will match the location to which the player chose to move
+% the ball to.
 pick_possible_move(BoardState, Player, Row, Column, DestRow, DestCol):-
     findall(PossibleRow:PossibleCol,
             possible_moves(Player, BoardState, Row, Column, PossibleRow, PossibleCol),
@@ -89,6 +98,7 @@ pick_possible_move(BoardState, Player, Row, Column, DestRow, DestCol):-
         fail
     ).
 
+% Display a list of given moves as an indexed list
 print_moves(MoveIndex, SourceRow, SourceColLetter, [CurrentMove|Moves]):-
     CurrentMove = PossibleRow:PossibleCol,
     write(MoveIndex), write(": "),

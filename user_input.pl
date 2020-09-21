@@ -58,7 +58,7 @@ pick_row_number(BoardSize, Row):-
     repeat,
     (
         get_code(UserInput),
-        between(1, BoardSize),
+        between(1, BoardSize, UserInput),
         Row = UserInput, !;
         writeln("Invalid input. Please enter a valid row number."),
         fail
@@ -71,7 +71,7 @@ pick_col_number(BoardSize, Col):-
     (
         get_code(UserInput),
         UpperLimit is 65 + BoardSize,
-        between(65, UpperLimit),
+        between(65, UpperLimit, UserInput),
         Col is UserInput - 64, !;
         writeln("Invalid input. Please enter a valid column letter."),
         fail
@@ -91,7 +91,7 @@ pick_possible_move(BoardState, Player, Row, Column, DestRow, DestCol):-
     repeat,
     (
         get_code(UserInput),
-        between(1, MovesAmount),
+        between(1, MovesAmount, UserInput),
         MoveIndex is UserInput - 1,
         nth0(MoveIndex, PossibleMoves, DestRow:DestCol), !;
         writeln("Invalid input. Please pick one of the moves above."),

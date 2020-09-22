@@ -82,64 +82,63 @@ no_ball(BoardState, RowIndex, ColIndex):-
 border(BoardState, RowIndex, ColIndex):-
     slot_by_index(BoardState, RowIndex, ColIndex, -1).
 
-% matches all slots of specified horizontal row
-horizontal_row(BoardState, RowIndex, Slots):-
-    nth0(RowIndex, BoardState, Slots).
+% matches all slots of specified row
+row(BoardState, RowIndex, Row):-
+    nth0(RowIndex, BoardState, Row).
 
-% matches all slots of specified vertical row
-% vertical_row(BoardState, ColIndex, Slots)
-vertical_row(BoardState, ColIndex, Slots):-
-    vertical_row(BoardState, 0, ColIndex, Slots).
+% matches all slots of specified column
+% column(BoardState, ColIndex, Column)
+column(BoardState, ColIndex, Column):-
+    column(BoardState, 0, ColIndex, Column).
 
-vertical_row(BoardState, RowIndex, ColIndex, [Slot|Slots]):-
+column(BoardState, RowIndex, ColIndex, [SlotType|SlotTypes]):-
     board_size(BoardSize),
     RowIndex < BoardSize, !,
     NextRowIndex is RowIndex + 1,
-    slot_by_index(BoardState, RowIndex, ColIndex, Slot),
-    vertical_row(BoardState, NextRowIndex, ColIndex, Slots).
+    slot_by_index(BoardState, RowIndex, ColIndex, SlotType),
+    column(BoardState, NextRowIndex, ColIndex, SlotTypes).
 
 
-vertical_row(BoardState, RowIndex, ColIndex, [Slot, -1]):-
+column(BoardState, RowIndex, ColIndex, [SlotType, -1]):-
     board_size(RowIndex),
-    slot_by_index(BoardState, RowIndex, ColIndex, Slot).
+    slot_by_index(BoardState, RowIndex, ColIndex, SlotType).
 
 % matches all slots of specified diagonal row
-diagonal_row(BoardState, RowIndex, Slots):-
+diagonal(BoardState, DiagonalIndex, Diagonal):-
     (
     	board_size(BoardSize),
     	HalfSize is ceil(BoardSize / 2),
-        RowIndex < HalfSize, 
-        FirstRowIndex is HalfSize - RowIndex,
-        diagonal_row(BoardState, FirstRowIndex, 0, Slots), !
+        DiagonalIndex < HalfSize, 
+        FirstRowIndex is HalfSize - DiagonalIndex,
+        diagonal(BoardState, FirstRowIndex, 0, Diagonal), !
     );(
       	board_size(BoardSize),
       	HalfSize is ceil(BoardSize / 2),
-        FirstColIndex is RowIndex - HalfSize,
-        diagonal_row(BoardState, 0, FirstColIndex, Slots), !
+        FirstColIndex is DiagonalIndex - HalfSize,
+        diagonal(BoardState, 0, FirstColIndex, Diagonal), !
     ).
 
-diagonal_row(BoardState, RowIndex, ColIndex, [Slot|Slots]):-
+diagonal(BoardState, SlotRow, SlotCol, [SlotType|SlotTypes]):-
     board_size(BoardSize),
-    (RowIndex < BoardSize, ColIndex < BoardSize), !,
-    slot_by_index(BoardState, RowIndex, ColIndex, Slot),
-    NextRowIndex is RowIndex + 1,
-    NextColIndex is ColIndex + 1,
-    diagonal_row(BoardState, NextRowIndex, NextColIndex, Slots).
+    (SlotRow < BoardSize, SlotCol < BoardSize), !,
+    slot_by_index(BoardState, SlotRow, SlotCol, SlotType),
+    NextSlotRow is SlotRow + 1,
+    NextSlotCol is SlotCol + 1,
+    diagonal(BoardState, NextSlotRow, NextSlotCol, SlotTypes).
 
-diagonal_row(BoardState, RowIndex, ColIndex, [Slot, -1]):-
-    (board_size(RowIndex);board_size(ColIndex)),
-    slot_by_index(BoardState, RowIndex, ColIndex, Slot).
+diagonal(BoardState, SlotRow, SlotCol, [SlotType, -1]):-
+    (board_size(SlotRow);board_size(SlotCol)),
+    slot_by_index(BoardState, SlotRow, SlotCol, SlotType).
 
-diagonal_row_index_by_slot(SlotRow, SlotCol, Index):-
+diagonal_index_by_slot(SlotRow, SlotCol, Index):-
     (SlotRow > 0, SlotCol > 0), !,
     PrevSlotRow is SlotRow - 1,
     PrevSlotCol is SlotCol - 1,
-    diagonal_row_index_by_slot(PrevSlotRow, PrevSlotCol, Index).
+    diagonal_index_by_slot(PrevSlotRow, PrevSlotCol, Index).
 
-diagonal_row_index_by_slot(SlotRow, SlotCol, Index):-
-    (SlotRow = 0 ; SlotCol = 0), !, 
-    (
-        SlotCol = 0,
+diagonal_index_by_slot(SlotRow, SlotCol, Index):-
+    (SlotRow = 0 ; SlotCol = 0),
+    (   SlotCol = 0, !,
         board_size(BoardSize),
         HalfSize is ceil(BoardSize / 2),
         Index is HalfSize + SlotRow
@@ -149,32 +148,32 @@ diagonal_row_index_by_slot(SlotRow, SlotCol, Index):-
         Index is HalfSize - SlotCol
     ).
 
-diagonal_row_by_slot(BoardState, SlotRow, SlotCol, Slots):-
-    diagonal_row_index_by_slot(SlotRow, SlotCol, RowIndex),
-    diagonal_row(BoardState, RowIndex, Slots).
+diagonal_by_slot(BoardState, SlotRow, SlotCol, Diagonal):-
+    diagonal_index_by_slot(SlotRow, SlotCol, DiagonalIndex),
+    diagonal(BoardState, DiagonalIndex, Diagonal).
 
 
 next_slot_location(SlotRow, SlotCol, direction(X,Y), NextSlotRow, NextSlotCol):-
     NextSlotRow is SlotRow + X,
     NextSlotCol is SlotCol + Y.
 
-legal_move(PlayerColor, [C, C, C, O, O, N]):-
-    validate_colors(PlayerColor, C,O,N), !.
+legal_move(PlayerColor, [C, C, C, O, O, N | _]):-
+    validate_colors(PlayerColor, C,O,N).
 
-legal_move(PlayerColor, [C, C, C, O, N]):-
-    validate_colors(PlayerColor, C,O,N), !.
+legal_move(PlayerColor, [C, C, C, O, N | _]):-
+    validate_colors(PlayerColor, C,O,N).
 
-legal_move(PlayerColor, [C, C, C, N]):-
-    validate_colors(PlayerColor, C,_,N), !.
+legal_move(PlayerColor, [C, C, C, N | _]):-
+    validate_colors(PlayerColor, C,_,N).
 
-legal_move(PlayerColor, [C, C, O, N]):-
-    validate_colors(PlayerColor, C,O,N), !.
+legal_move(PlayerColor, [C, C, O, N | _]):-
+    validate_colors(PlayerColor, C,O,N).
 
-legal_move(PlayerColor, [C, C, N]):-
-    validate_colors(PlayerColor, C,_,N), !.
+legal_move(PlayerColor, [C, C, N | _]):-
+    validate_colors(PlayerColor, C,_,N).
 
-legal_move(PlayerColor, [C, N]):-
-    validate_colors(PlayerColor, C,_,N), !.
+legal_move(PlayerColor, [C, N | _]):-
+    validate_colors(PlayerColor, C,_,N).
 
 
 validate_colors(PlayerColor, C,O,N):-

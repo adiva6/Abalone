@@ -57,9 +57,9 @@ direction_in_axis(A, direction(X,Y)):-
         axis(A, direction(W,V))
     ).
 
-letter_to_row(L, I):-
-    char_code(L, LCode),
-    I is LCode - 64.
+letter_to_col_num(Letter, ColNum):-
+    char_code(Letter, LetterCode),
+    ColNum is LetterCode - 64.
 
 % matches slot content, depends on board state
 slot_by_index(BoardState, RowIndex, ColIndex, Slot):-
@@ -157,30 +157,30 @@ next_slot_location(SlotRow, SlotCol, direction(X,Y), NextSlotRow, NextSlotCol):-
     NextSlotRow is SlotRow + X,
     NextSlotCol is SlotCol + Y.
 
-legal_move(PlayerColor, [C, C, C, O, O, N | _]):-
-    validate_colors(PlayerColor, C,O,N).
+legal_move(PlayerColor, [PlayerBall, PlayerBall, PlayerBall, OtherPlayerBall, OtherPlayerBall, NoBall | _]):-
+    validate_colors(PlayerColor, PlayerBall,OtherPlayerBall, NoBall).
 
-legal_move(PlayerColor, [C, C, C, O, N | _]):-
-    validate_colors(PlayerColor, C,O,N).
+legal_move(PlayerColor, [PlayerBall, PlayerBall, PlayerBall, OtherPlayerBall, NoBall | _]):-
+    validate_colors(PlayerColor, PlayerBall,OtherPlayerBall, NoBall).
 
-legal_move(PlayerColor, [C, C, C, N | _]):-
-    validate_colors(PlayerColor, C,_,N).
+legal_move(PlayerColor, [PlayerBall, PlayerBall, PlayerBall, NoBall | _]):-
+    validate_colors(PlayerColor, PlayerBall, _, NoBall).
 
-legal_move(PlayerColor, [C, C, O, N | _]):-
-    validate_colors(PlayerColor, C,O,N).
+legal_move(PlayerColor, [PlayerBall, PlayerBall, OtherPlayerBall, NoBall | _]):-
+    validate_colors(PlayerColor, PlayerBall,OtherPlayerBall, NoBall).
 
-legal_move(PlayerColor, [C, C, N | _]):-
-    validate_colors(PlayerColor, C,_,N).
+legal_move(PlayerColor, [PlayerBall, PlayerBall, NoBall | _]):-
+    validate_colors(PlayerColor, PlayerBall, _, NoBall).
 
-legal_move(PlayerColor, [C, N | _]):-
-    validate_colors(PlayerColor, C,_,N).
+legal_move(PlayerColor, [PlayerBall, NoBall | _]):-
+    validate_colors(PlayerColor, PlayerBall, _, NoBall).
 
 
-validate_colors(PlayerColor, C,O,N):-
-    slot_legend(C, PlayerColor),
-    (slot_legend(N, empty) ; slot_legend(N, border)),
-    other_player(PlayerColor, OtherPlayerColor),
-    slot_legend(O, OtherPlayerColor).
+validate_colors(PlayerColor, PlayerBall, OtherPlayerBall, NoBall):-
+    slot_legend(PlayerBall, PlayerColor),
+    (slot_legend(NoBall, empty) ; slot_legend(NoBall, border)),
+    other_player(PlayerColor, OtherPlayerBall),
+    slot_legend(OtherPlayerBall, OtherPlayerBall).
 
 
 % TODO

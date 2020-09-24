@@ -60,7 +60,7 @@ pick_ball_to_move(BoardState, Player, Row, Column):-
 pick_row_number(BoardSize, Row):-
     repeat,
     (
-        get_code(UserInput),
+        read(UserInput),
         between(1, BoardSize, UserInput),
         Row = UserInput, !;
         writeln("Invalid input. Please enter a valid row number."),
@@ -72,7 +72,7 @@ pick_row_number(BoardSize, Row):-
 pick_col_number(BoardSize, Col):-
     repeat,
     (
-        get_code(UserInput),
+        read(UserInput),
         UpperLimit is 65 + BoardSize,
         between(65, UpperLimit, UserInput),
         Col is UserInput - 64, !;
@@ -84,19 +84,6 @@ pick_col_number(BoardSize, Col):-
 % DestRow and DestCol will match the location to which the player chose to move
 % the ball to.
 pick_possible_move(BoardState, Player, Row, Column, DestRow, DestCol):-
-    BoardState = [
-                 [-1, -1, -1, -1, -1,-1,-1,-1,-1, -1, -1],
-                 [-1, 'W', 'W', 0, 0, 0, -1, -1, -1, -1, -1],
-                 [-1, 'W', 'W', 0, 0, 0, 0, -1, -1, -1, -1],
-                 [-1, 'W', 'W', 'W', 0, 0, 0, 0,-1, -1, -1],
-                 [-1, 'W', 'W', 'W', 0, 0, 0, 0, 'B', -1, -1],
-                 [-1, 'W', 'W', 'W', 0, 0, 0, 'B', 'B', 'B', -1],
-                 [-1, -1, 'W', 0, 0, 0, 0, 'B', 'B', 'B', -1],
-                 [-1, -1, -1, 0, 0, 0, 0, 'B', 'B', 'B', -1],
-                 [-1, -1, -1, -1, 0, 0, 0, 0, 'B', 'B', -1],
-                 [-1, -1,-1, -1, -1, 0, 0, 0, 'B', 'B', -1],
-                 [-1, -1, -1, -1, -1,-1,-1,-1,-1, -1, -1]
-                 ],
     findall(PossibleRow:PossibleCol,
             possible_moves(Player, BoardState, Row, Column, PossibleRow, PossibleCol),
             PossibleMoves),
@@ -106,7 +93,7 @@ pick_possible_move(BoardState, Player, Row, Column, DestRow, DestCol):-
     print_moves(1, Row, ColumnLetter, PossibleMoves),
     repeat,
     (
-        get_code(UserInput),
+        read(UserInput),
         between(1, MovesAmount, UserInput),
         MoveIndex is UserInput - 1,
         nth0(MoveIndex, PossibleMoves, DestRow:DestCol), !;
@@ -119,11 +106,10 @@ print_moves(MoveIndex, SourceRow, SourceColLetter, [CurrentMove|Moves]):-
     CurrentMove = PossibleRow:PossibleCol,
     write(MoveIndex), write(": "),
     col_num_to_letter(PossibleCol, PossibleColLetter),
-    nl,
     write(SourceRow), write(SourceColLetter), write(" -> "),
     write(PossibleRow), write(PossibleColLetter),
     nl,
     NextMoveIndex is MoveIndex + 1,
-    print_moves(NextMoveIndex, SourceRow, SourceColLetter, Moves).
+    print_moves(NextMoveIndex, SourceRow, SourceColLetter, Moves), !.
 
 print_moves(_, _, _, []):- !.

@@ -1,3 +1,4 @@
+:- dynamic board_size/1.
 % TODO: bigger board, this is a stub.
 %           A B C
 %          / / /
@@ -18,30 +19,33 @@ init_board(3, EmptyBoard):-
 
 slot_legend('W', white).
 slot_legend('B', black).
-slot_legend('.', empty).
+slot_legend(0, empty).
+slot_legend(-1, border).
 
 player(white).
 player(black).
+other_player(white, black).
+other_player(black, white).
 
 % x ----------
 direction(1, 0).
 direction(-1, 0).
 % y //////////
-direction(1, -1).
-direction(-1, 1).
+direction(0, 1).
+direction(0, -1).
 % z \\\\\\\\\\
 direction(1, 1).
 direction(-1, -1).
 
 axis(x, direction(1, 0)).
-axis(y, direction(1, -1)).
+axis(y, direction(0, 1)).
 axis(z, direction(1, 1)).
 
 % TODO: less hard-coded, more logical
 opposite_direction(direction(1, 0), direction(-1, 0)).
 opposite_direction(direction(-1, 0), direction(1, 0)).
-opposite_direction(direction(1, -1), direction(-1, 1)).
-opposite_direction(direction(-1, 1), direction(1, -1)).
+opposite_direction(direction(0, 1), direction(0, -1)).
+opposite_direction(direction(0, -1), direction(0, 1)).
 opposite_direction(direction(1, 1), direction(-1, -1)).
 opposite_direction(direction(-1, -1), direction(1, 1)).
 
@@ -53,59 +57,136 @@ direction_in_axis(A, direction(X,Y)):-
         axis(A, direction(W,V))
     ).
 
-% TODO
-% slot(Num, Letter)
+letter_to_col_num(Letter, ColNum):-
+    char_code(Letter, LetterCode),
+    ColNum is LetterCode - 64.
 
-% TODO
-% % matches slot's color, depends on board state
-% % slot_color(Board, Slot, Color)
-% slot_color(Board, slot(Num, Letter), color(Color)).
+% matches slot content, depends on board state
+slot_by_index(BoardState, RowIndex, ColIndex, Slot):-
+    nth0(RowIndex, BoardState, RowSlots),
+    nth0(ColIndex, RowSlots, Slot).
 
-% TODO
-% % matches slot that contain a white ball, depends on board state
-% % white_ball(Board, Slot)
-% white_ball(Board, slot(Num, Letter)).
+% matches slot that contain a white ball, depends on board state
+white_ball(BoardState, RowIndex, ColIndex):-
+    slot_by_index(BoardState, RowIndex, ColIndex, 'W').
 
-% TODO
-% % matches slots that contain a black ball, depends on board state
-% % black_ball(Board, Slot)
-% black_ball(Board, slot(Num, Letter)).
+% matches slots that contain a black ball, depends on board state
+black_ball(BoardState, RowIndex, ColIndex):-
+    slot_by_index(BoardState, RowIndex, ColIndex, 'B').
 
-% TODO
-% % matches slots that contain no ball, depends on board state
-% % no_ball(Board, Slot)
-% no_ball(Board, slot(Num, Letter)).
+% matches slots that contain no ball, depends on board state
+no_ball(BoardState, RowIndex, ColIndex):-
+    slot_by_index(BoardState, RowIndex, ColIndex, 0).
+
+% matches border slots, depends on board state (though this remains static throughout the game)
+border(BoardState, RowIndex, ColIndex):-
+    slot_by_index(BoardState, RowIndex, ColIndex, -1).
+
+% matches all slots of specified row
+row(BoardState, RowIndex, Row):-
+    nth0(RowIndex, BoardState, Row).
+
+% matches all slots of specified column
+% column(BoardState, ColIndex, Column)
+column(BoardState, ColIndex, Column):-
+    column(BoardState, 0, ColIndex, Column).
+
+column(BoardState, RowIndex, ColIndex, [SlotType|SlotTypes]):-
+    board_size(BoardSize),
+    RowIndex < BoardSize, !,
+    NextRowIndex is RowIndex + 1,
+    slot_by_index(BoardState, RowIndex, ColIndex, SlotType),
+    column(BoardState, NextRowIndex, ColIndex, SlotTypes).
 
 
-% TODO
-% % matches all slots of specified row
-% row(slot(Num, Letter), axis(X, Y), Slots).
+column(BoardState, RowIndex, ColIndex, [SlotType, -1]):-
+    board_size(RowIndex),
+    slot_by_index(BoardState, RowIndex, ColIndex, SlotType).
 
-% TODO
-% % size of row of given slot, in given axis
-% row_size(slot(Num, Letter), axis(X, Y), Size).
+% matches all slots of specified diagonal row
+diagonal(BoardState, DiagonalIndex, Diagonal):-
+    (
+    	board_size(BoardSize),
+    	HalfSize is ceil(BoardSize / 2),
+        DiagonalIndex < HalfSize, 
+        FirstRowIndex is HalfSize - DiagonalIndex,
+        diagonal(BoardState, FirstRowIndex, 0, Diagonal), !
+    );(
+      	board_size(BoardSize),
+      	HalfSize is ceil(BoardSize / 2),
+        FirstColIndex is DiagonalIndex - HalfSize,
+        diagonal(BoardState, 0, FirstColIndex, Diagonal), !
+    ).
 
-% TODO
-% % matches if all slots are aligned in same axis
-% is_directed_array_of_slots(Slots, axis(X, Y)).
+diagonal(BoardState, SlotRow, SlotCol, [SlotType|SlotTypes]):-
+    board_size(BoardSize),
+    (SlotRow < BoardSize, SlotCol < BoardSize), !,
+    slot_by_index(BoardState, SlotRow, SlotCol, SlotType),
+    NextSlotRow is SlotRow + 1,
+    NextSlotCol is SlotCol + 1,
+    diagonal(BoardState, NextSlotRow, NextSlotCol, SlotTypes).
 
-% TODO
-% % MovedBalls array will be the set of balls which will be moved by a move
-% moved_balls(move(FirstBall, direction(X, Y)), MovedBalls).
+diagonal(BoardState, SlotRow, SlotCol, [SlotType, -1]):-
+    (board_size(SlotRow);board_size(SlotCol)),
+    slot_by_index(BoardState, SlotRow, SlotCol, SlotType).
 
-% TODO
-% % matches for all moves that can be played by given player
-% legal_move(Player, move(FirstSlot, Direction)).
+diagonal_index_by_slot(SlotRow, SlotCol, Index):-
+    (SlotRow > 0, SlotCol > 0), !,
+    PrevSlotRow is SlotRow - 1,
+    PrevSlotCol is SlotCol - 1,
+    diagonal_index_by_slot(PrevSlotRow, PrevSlotCol, Index).
+
+diagonal_index_by_slot(SlotRow, SlotCol, Index):-
+    (SlotRow = 0 ; SlotCol = 0),
+    (   SlotCol = 0, !,
+        board_size(BoardSize),
+        HalfSize is ceil(BoardSize / 2),
+        Index is HalfSize + SlotRow
+    );(
+        board_size(BoardSize),
+        HalfSize is ceil(BoardSize / 2),
+        Index is HalfSize - SlotCol
+    ).
+
+diagonal_by_slot(BoardState, SlotRow, SlotCol, Diagonal):-
+    diagonal_index_by_slot(SlotRow, SlotCol, DiagonalIndex),
+    diagonal(BoardState, DiagonalIndex, Diagonal).
+
+
+next_slot_location(SlotRow, SlotCol, direction(X,Y), NextSlotRow, NextSlotCol):-
+    NextSlotRow is SlotRow + X,
+    NextSlotCol is SlotCol + Y.
+
+legal_move(PlayerColor, [PlayerBall, PlayerBall, PlayerBall, OtherPlayerBall, OtherPlayerBall, NoBall | _]):-
+    validate_colors(PlayerColor, PlayerBall,OtherPlayerBall, NoBall).
+
+legal_move(PlayerColor, [PlayerBall, PlayerBall, PlayerBall, OtherPlayerBall, NoBall | _]):-
+    validate_colors(PlayerColor, PlayerBall,OtherPlayerBall, NoBall).
+
+legal_move(PlayerColor, [PlayerBall, PlayerBall, PlayerBall, NoBall | _]):-
+    validate_colors(PlayerColor, PlayerBall, _, NoBall).
+
+legal_move(PlayerColor, [PlayerBall, PlayerBall, OtherPlayerBall, NoBall | _]):-
+    validate_colors(PlayerColor, PlayerBall,OtherPlayerBall, NoBall).
+
+legal_move(PlayerColor, [PlayerBall, PlayerBall, NoBall | _]):-
+    validate_colors(PlayerColor, PlayerBall, _, NoBall).
+
+legal_move(PlayerColor, [PlayerBall, NoBall | _]):-
+    validate_colors(PlayerColor, PlayerBall, _, NoBall).
+
+
+validate_colors(PlayerColor, PlayerBall, OtherPlayerBall, NoBall):-
+    slot_legend(PlayerBall, PlayerColor),
+    (slot_legend(NoBall, empty) ; slot_legend(NoBall, border)),
+    other_player(PlayerColor, OtherPlayerBall),
+    slot_legend(OtherPlayerBall, OtherPlayerBall).
+
 
 % TODO
 % % alters board state and player scores if necessary
 % make_move(move(FirstBall, Direction)).
 
-% TODO
-% % a "move" object that defines a possible move
-% move(FirstBall, Direction).
-
-% TODO
-% % matches for all balls which are owned by a player and aligned in a row, in any direction
-% three_aligned_balls(Balls).
-% two_aligned_balls(Balls).
+% % TODO
+% % a "move" object, defines a legal move
+% move(BoardState, PlayerColor, RowIndex, ColIndex, Direction, NextBoardState).

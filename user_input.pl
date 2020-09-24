@@ -84,12 +84,25 @@ pick_col_number(BoardSize, Col):-
 % DestRow and DestCol will match the location to which the player chose to move
 % the ball to.
 pick_possible_move(BoardState, Player, Row, Column, DestRow, DestCol):-
+    BoardState = [
+                 [-1, -1, -1, -1, -1,-1,-1,-1,-1, -1, -1],
+                 [-1, 'W', 'W', 0, 0, 0, -1, -1, -1, -1, -1],
+                 [-1, 'W', 'W', 0, 0, 0, 0, -1, -1, -1, -1],
+                 [-1, 'W', 'W', 'W', 0, 0, 0, 0,-1, -1, -1],
+                 [-1, 'W', 'W', 'W', 0, 0, 0, 0, 'B', -1, -1],
+                 [-1, 'W', 'W', 'W', 0, 0, 0, 'B', 'B', 'B', -1],
+                 [-1, -1, 'W', 0, 0, 0, 0, 'B', 'B', 'B', -1],
+                 [-1, -1, -1, 0, 0, 0, 0, 'B', 'B', 'B', -1],
+                 [-1, -1, -1, -1, 0, 0, 0, 0, 'B', 'B', -1],
+                 [-1, -1,-1, -1, -1, 0, 0, 0, 'B', 'B', -1],
+                 [-1, -1, -1, -1, -1,-1,-1,-1,-1, -1, -1]
+                 ],
     findall(PossibleRow:PossibleCol,
             possible_moves(Player, BoardState, Row, Column, PossibleRow, PossibleCol),
             PossibleMoves),
     writeln("Pick a move from the following:"),
     length(PossibleMoves, MovesAmount),
-    letter_to_row(ColumnLetter, Column),
+    col_num_to_letter(Column, ColumnLetter),
     print_moves(1, Row, ColumnLetter, PossibleMoves),
     repeat,
     (
@@ -105,7 +118,7 @@ pick_possible_move(BoardState, Player, Row, Column, DestRow, DestCol):-
 print_moves(MoveIndex, SourceRow, SourceColLetter, [CurrentMove|Moves]):-
     CurrentMove = PossibleRow:PossibleCol,
     write(MoveIndex), write(": "),
-    letter_to_row(PossibleColLetter, PossibleCol),
+    col_num_to_letter(PossibleCol, PossibleColLetter),
     nl,
     write(SourceRow), write(SourceColLetter), write(" -> "),
     write(PossibleRow), write(PossibleColLetter),

@@ -61,6 +61,10 @@ letter_to_col_num(Letter, ColNum):-
     char_code(Letter, LetterCode),
     ColNum is LetterCode - 64.
 
+col_num_to_letter(ColNum, Letter):-
+    LetterCode is ColNum + 65,
+    char_code(Letter, LetterCode).
+
 % matches slot content, depends on board state
 slot_by_index(BoardState, RowIndex, ColIndex, Slot):-
     nth0(RowIndex, BoardState, RowSlots),

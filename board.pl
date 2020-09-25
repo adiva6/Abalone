@@ -1,21 +1,4 @@
 :- dynamic board_size/1.
-% TODO: bigger board, this is a stub.
-%           A B C
-%          / / /
-%        ---
-%    1-/ B B \
-%   2-| . . . |
-%   3- \ W W /
-%        ---
-
-init_board(3, EmptyBoard):- 
-    EmptyBoard = [
-        [-1 , -1 , -1 , -1 , -1],
-        [-1 , 'B', 'B', -1 , -1],
-        [-1 ,  0 ,  0 ,  0 , -1],
-        [-1 , -1 , 'W', 'W', -1],
-        [-1 , -1 , -1 , -1 , -1]
-    ].
 
 slot_legend('W', white).
 slot_legend('B', black).

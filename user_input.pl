@@ -5,17 +5,16 @@
 
 % Get the board size as input from the user
 pick_board_size(BoardSize):-
-    writeln("Please select a board size (must be an odd number between 5 and 17):"),
+    writeln("Please select a board size (must be an odd number between 7 and 17):"),
     repeat,
     read(UserInput),
     (
         integer(UserInput),
-        UserInput >= 5,
-        UserInput =< 17,
+        between(7, 17, UserInput),
         Remainder is mod(UserInput, 2),
         Remainder = 1,
         BoardSize = UserInput,
-        retract(board_size(_)),
+        retractall(board_size(_)),
         assert(board_size(BoardSize)), 
         !;
         writeln("Invalid input. Please enter a valid board size."),
@@ -25,16 +24,18 @@ pick_board_size(BoardSize):-
 % Get the difficulty level as input from the user
 pick_difficulty_level(Level):-
     writeln("Please select a difficulty level:"),
-    writeln("1- Beginner"),
-    writeln("2- Intermediate"),
-    writeln("3- Expert"),
+    writeln("1: Beginner"),
+    writeln("2: Intermediate"),
+    writeln("3: Expert"),
     repeat,
-    read(UserInput),
+    get_single_char(UserInputCode),
+    number_codes(UserInput, [UserInputCode]),
     (
-        integer(UserInput),
         (UserInput = 1, Level = easy), !;
         (UserInput = 2, Level = intermediate), !;
-        (UserInput = 3, Level = expert), !;
+        (UserInput = 3, Level = expert), !,
+        retractall(difficulty_level(_)),
+        assert(difficulty_level(Level)), !;
         writeln("Invalid input. Please enter a valid difficulty level."),
         fail
     ).
@@ -93,7 +94,8 @@ pick_possible_move(BoardState, Player, Row, Column, DestRow, DestCol):-
     print_moves(1, Row, ColumnLetter, PossibleMoves),
     repeat,
     (
-        read(UserInput),
+        get_single_char(UserInputCode),
+        number_codes(UserInput, [UserInputCode]),
         between(1, MovesAmount, UserInput),
         MoveIndex is UserInput - 1,
         nth0(MoveIndex, PossibleMoves, DestRow:DestCol), !;

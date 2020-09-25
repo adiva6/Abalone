@@ -3,7 +3,7 @@ init_board(BoardSize, InitialBoard):-
     generate_list(1, MatrixSize, -1, FirstRow),
     generate_black_side(BoardSize, BlackRows),
     NumberOfEmptyRows is BoardSize - 6,
-    generate_empty_rows(0, NumberOfEmptyRows, MatrixSize, EmptyRows),
+    generate_empty_rows(0, NumberOfEmptyRows, BoardSize, EmptyRows),
     generate_white_side(BoardSize, WhiteRows),
     generate_list(1, MatrixSize, -1, LastRow),
     long_conc([[FirstRow], BlackRows, EmptyRows, WhiteRows, [LastRow]], InitialBoard).
@@ -17,13 +17,13 @@ long_conc([[X|FirstListTail]|ListsTail], [X|ResultTail]):- % First list in the l
 balls_amount_by_board_size(BoardSize, BallsAmount):-
     BallsAmount is BoardSize + ceil(BoardSize / 2).
 
-generate_empty_rows(CurrentRowNumber, NumberOfRows, MatrixSize, [Row|Rows]):-
+generate_empty_rows(CurrentRowNumber, NumberOfRows, BoardSize, [Row|Rows]):-
     CurrentRowNumber < NumberOfRows, !,
     Row = [-1|Slots],
-    Length is MatrixSize - 1,
+    Length is BoardSize - abs(ceil(NumberOfRows / 2) - CurrentRowNumber - 1) + 1,
     generate_list(1, Length, 0, Slots),
     NextRowNumber is CurrentRowNumber + 1,
-    generate_empty_rows(NextRowNumber, NumberOfRows, MatrixSize, Rows), !.
+    generate_empty_rows(NextRowNumber, NumberOfRows, BoardSize, Rows), !.
 
 generate_empty_rows(NumberOfRows, NumberOfRows, _, []):- !.
 

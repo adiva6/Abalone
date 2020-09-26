@@ -35,3 +35,45 @@ legal_move(Player, BoardState, SourceRow, SourceCol, Direction):-
     between(1, BoardSize, SourceCol),
     slots_sequence_by_direction(BoardState, BoardSize, SourceRow, SourceCol, Direction, Slots),
     legal_move(Player, Slots).
+
+legal_move(PlayerColor, [PlayerBall, PlayerBall, PlayerBall, OtherPlayerBall, OtherPlayerBall, NoBall | _]):-
+    validate_colors(PlayerColor, PlayerBall,OtherPlayerBall, NoBall, _).
+
+legal_move(PlayerColor, [PlayerBall, PlayerBall, PlayerBall, OtherPlayerBall, OtherPlayerBall, Border | _]):-
+    validate_colors(PlayerColor, PlayerBall,OtherPlayerBall, _, Border).
+
+legal_move(PlayerColor, [PlayerBall, PlayerBall, PlayerBall, OtherPlayerBall, NoBall | _]):-
+    validate_colors(PlayerColor, PlayerBall,OtherPlayerBall, NoBall, _).
+
+legal_move(PlayerColor, [PlayerBall, PlayerBall, PlayerBall, OtherPlayerBall, Border | _]):-
+    validate_colors(PlayerColor, PlayerBall,OtherPlayerBall, _, Border).
+
+legal_move(PlayerColor, [PlayerBall, PlayerBall, PlayerBall, NoBall | _]):-
+    validate_colors(PlayerColor, PlayerBall, _, NoBall, _).
+
+legal_move(PlayerColor, [PlayerBall, PlayerBall, OtherPlayerBall, NoBall | _]):-
+    validate_colors(PlayerColor, PlayerBall,OtherPlayerBall, NoBall, _).
+
+legal_move(PlayerColor, [PlayerBall, PlayerBall, OtherPlayerBall, Border | _]):-
+    validate_colors(PlayerColor, PlayerBall,OtherPlayerBall, _, Border).
+
+legal_move(PlayerColor, [PlayerBall, PlayerBall, NoBall | _]):-
+    validate_colors(PlayerColor, PlayerBall, _, NoBall, _).
+
+legal_move(PlayerColor, [PlayerBall, NoBall | _]):-
+    validate_colors(PlayerColor, PlayerBall, _, NoBall, _).
+
+validate_colors(PlayerColor, PlayerBall, OtherPlayerBall, NoBall, Border):-
+    slot_legend(PlayerBall, PlayerColor),
+    slot_legend(NoBall, empty),
+    slot_legend(Border, border),
+    other_player(PlayerColor, OtherPlayer),
+    slot_legend(OtherPlayerBall, OtherPlayer).
+
+% TODO
+% % alters board state and player scores if necessary
+% make_move(move(FirstBall, Direction)).
+
+% % TODO
+% % a "move" object, defines a legal move
+% move(BoardState, PlayerColor, RowIndex, ColIndex, Direction, NextBoardState).

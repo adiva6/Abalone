@@ -5,16 +5,16 @@
 
 % Computer player "thinks" and makes a move
 % TODO: method will use dfs to find move with best score, and call move(BestMove)
-computer_turn():-
+computer_turn(Player):-
     % TODO: use bfs (/ dfs) to find best move
     % make_move(BestMove)
     !.
 
 % Player is asked to make a move, selected move is made
-human_player_turn(BoardState, NewBoardState):-
+human_player_turn(Player, BoardState, NewBoardState):-
     pick_ball_to_move(BoardState, white, Row, Column),
     pick_possible_move(BoardState, white, Row, Column, Direction),
-    move(BoardState, Row, Column, Direction, NewBoardState).
+    move(BoardState, Player, Row, Column, Direction, NewBoardState).
 
 
 % Repeatedly plays turns of players (human, computer, human...) until someone wins
@@ -26,6 +26,6 @@ run_game():-
     display_board(BoardSize, BoardState),
     repeat,
     (
-        human_player_turn(),
-        computer_turn()
+        human_player_turn(white),
+        computer_turn(black)
     ).

@@ -97,7 +97,7 @@ pick_possible_move(BoardState, Player, Row, Column, Direction):-
         [-1, -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1]
     ],
     findall(PossibleDirection-(PossibleRow:PossibleCol),
-            possible_moves(Player, BoardState, Row, Column, PossibleRow, PossibleCol, PossibleDirection),
+            possible_moves_by_location(Player, BoardState, Row, Column, PossibleRow, PossibleCol, PossibleDirection),
             PossibleMoves),
     writeln("Pick a move from the following:"),
     length(PossibleMoves, MovesAmount),

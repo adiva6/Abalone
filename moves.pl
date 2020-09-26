@@ -5,7 +5,7 @@
 
 % Matches for legal destinations given the current board state and
 % the location of the marble to move.
-possible_moves(Player, BoardState, SourceRow, SourceCol, DestRow, DestCol, direction(X, Y)):-
+possible_moves_by_location(Player, BoardState, SourceRow, SourceCol, DestRow, DestCol, direction(X, Y)):-
     direction(X, Y),
     possible_moves_by_direction(Player, BoardState, SourceRow, SourceCol, DestRow, DestCol, direction(X, Y)).
 

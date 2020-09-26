@@ -85,17 +85,6 @@ pick_col_number(BoardSize, Col):-
 % DestRow and DestCol will match the location to which the player chose to move
 % the ball to.
 pick_possible_move(BoardState, Player, Row, Column, Direction):-
-    BoardState = [
-        [-1, -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1],
-        [-1, 'B', 'B', 'B', 'B', -1,  -1,  -1,  -1],
-        [-1, 'B', 'B', 'B', 'B', 'B', -1,  -1,  -1],
-        [-1,  0,   0,  'B', 'B',  0,   0,  -1,  -1],
-        [-1,  0,   0,   0,   0,   0,   0,   0,  -1],
-        [-1, -1,   0,   0,  'W', 'W',  0,   0,  -1],
-        [-1, -1,  -1,  'W', 'W', 'W', 'W', 'W', -1],
-        [-1, -1,  -1,  -1,  'W', 'W', 'W', 'W', -1],
-        [-1, -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1]
-    ],
     findall(PossibleDirection-(PossibleRow:PossibleCol),
             possible_moves_by_location(Player, BoardState, Row, Column, PossibleRow, PossibleCol, PossibleDirection),
             PossibleMoves),

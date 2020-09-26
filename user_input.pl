@@ -76,7 +76,7 @@ pick_col_number(BoardSize, Col):-
         read(UserInput),
         UpperLimit is 65 + BoardSize,
         between(65, UpperLimit, UserInput),
-        Col is UserInput - 64, !;
+        letter_to_col_num(UserInput, Col), !;
         writeln("Invalid input. Please enter a valid column letter."),
         fail
     ).
@@ -84,9 +84,20 @@ pick_col_number(BoardSize, Col):-
 % Present all possible moves for the current player given the ball he chose to move.
 % DestRow and DestCol will match the location to which the player chose to move
 % the ball to.
-pick_possible_move(BoardState, Player, Row, Column, DestRow, DestCol):-
-    findall(PossibleRow:PossibleCol,
-            possible_moves(Player, BoardState, Row, Column, PossibleRow, PossibleCol),
+pick_possible_move(BoardState, Player, Row, Column, Direction):-
+    BoardState = [
+        [-1, -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1],
+        [-1, 'B', 'B', 'B', 'B', -1,  -1,  -1,  -1],
+        [-1, 'B', 'B', 'B', 'B', 'B', -1,  -1,  -1],
+        [-1,  0,   0,  'B', 'B',  0,   0,  -1,  -1],
+        [-1,  0,   0,   0,   0,   0,   0,   0,  -1],
+        [-1, -1,   0,   0,  'W', 'W',  0,   0,  -1],
+        [-1, -1,  -1,  'W', 'W', 'W', 'W', 'W', -1],
+        [-1, -1,  -1,  -1,  'W', 'W', 'W', 'W', -1],
+        [-1, -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1]
+    ],
+    findall(PossibleDirection-(PossibleRow:PossibleCol),
+            possible_moves(Player, BoardState, Row, Column, PossibleRow, PossibleCol, PossibleDirection),
             PossibleMoves),
     writeln("Pick a move from the following:"),
     length(PossibleMoves, MovesAmount),
@@ -98,14 +109,14 @@ pick_possible_move(BoardState, Player, Row, Column, DestRow, DestCol):-
         number_codes(UserInput, [UserInputCode]),
         between(1, MovesAmount, UserInput),
         MoveIndex is UserInput - 1,
-        nth0(MoveIndex, PossibleMoves, DestRow:DestCol), !;
+        nth0(MoveIndex, PossibleMoves, Direction-(_:_)), !;
         writeln("Invalid input. Please pick one of the moves above."),
         fail
     ).
 
 % Display a list of given moves as an indexed list
 print_moves(MoveIndex, SourceRow, SourceColLetter, [CurrentMove|Moves]):-
-    CurrentMove = PossibleRow:PossibleCol,
+    CurrentMove = _-(PossibleRow:PossibleCol),
     write(MoveIndex), write(": "),
     col_num_to_letter(PossibleCol, PossibleColLetter),
     write(SourceRow), write(SourceColLetter), write(" -> "),

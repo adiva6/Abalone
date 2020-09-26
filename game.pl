@@ -11,10 +11,13 @@ computer_turn():-
     !.
 
 % Player is asked to make a move, selected move is made
-human_player_turn().
+human_player_turn(BoardState, NewBoardState):-
+    pick_ball_to_move(BoardState, white, Row, Column),
+    pick_possible_move(BoardState, white, Row, Column, Direction),
+    move(BoardState, Row, Column, Direction, NewBoardState).
 
 
-% Repeatedly plays turns of players (computer, human, computer...) until someone wins
+% Repeatedly plays turns of players (human, computer, human...) until someone wins
 run_game():-
     writeln("Welcome to Abalone!"),
     pick_difficulty_level(_),

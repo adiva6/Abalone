@@ -10,7 +10,8 @@
 
 % Level of centerability, based on distance from center of each player's balls
 % Score will be stored in db and changed along with board state
-centerability_score(BoardSize, BoardState, HeuristicValue):-
+centerability_score(BoardState, HeuristicValue):-
+    board_size(BoardSize),
     BoardCenter is ceil(BoardSize / 2),
     findall(RowIndex:ColIndex, black_ball(BoardState, RowIndex, ColIndex), BlackLocations),
     findall(RowIndex:ColIndex, white_ball(BoardState, RowIndex, ColIndex), WhiteLocations),

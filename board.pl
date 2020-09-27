@@ -1,21 +1,4 @@
 :- dynamic board_size/1.
-% TODO: bigger board, this is a stub.
-%           A B C
-%          / / /
-%        ---
-%    1-/ B B \
-%   2-| . . . |
-%   3- \ W W /
-%        ---
-
-init_board(3, EmptyBoard):- 
-    EmptyBoard = [
-        [-1 , -1 , -1 , -1 , -1],
-        [-1 , 'B', 'B', -1 , -1],
-        [-1 ,  0 ,  0 ,  0 , -1],
-        [-1 , -1 , 'W', 'W', -1],
-        [-1 , -1 , -1 , -1 , -1]
-    ].
 
 slot_legend('W', white).
 slot_legend('B', black).
@@ -61,6 +44,10 @@ letter_to_col_num(Letter, ColNum):-
     char_code(Letter, LetterCode),
     ColNum is LetterCode - 64.
 
+col_num_to_letter(ColNum, Letter):-
+    LetterCode is ColNum + 65,
+    char_code(Letter, LetterCode).
+
 % matches slot content, depends on board state
 slot_by_index(BoardState, RowIndex, ColIndex, Slot):-
     nth0(RowIndex, BoardState, RowSlots),
@@ -103,7 +90,7 @@ column(BoardState, RowIndex, ColIndex, [SlotType, -1]):-
     board_size(RowIndex),
     slot_by_index(BoardState, RowIndex, ColIndex, SlotType).
 
-% matches all slots of specified diagonal row
+% Matches all slots of specified diagonal row
 diagonal(BoardState, DiagonalIndex, Diagonal):-
     (
     	board_size(BoardSize),
@@ -111,7 +98,8 @@ diagonal(BoardState, DiagonalIndex, Diagonal):-
         DiagonalIndex < HalfSize, 
         FirstRowIndex is HalfSize - DiagonalIndex,
         diagonal(BoardState, FirstRowIndex, 0, Diagonal), !
-    );(
+    );
+    (
       	board_size(BoardSize),
       	HalfSize is ceil(BoardSize / 2),
         FirstColIndex is DiagonalIndex - HalfSize,
@@ -120,14 +108,20 @@ diagonal(BoardState, DiagonalIndex, Diagonal):-
 
 diagonal(BoardState, SlotRow, SlotCol, [SlotType|SlotTypes]):-
     board_size(BoardSize),
-    (SlotRow < BoardSize, SlotCol < BoardSize), !,
+    (
+        SlotRow < BoardSize,
+        SlotCol < BoardSize
+    ), !,
     slot_by_index(BoardState, SlotRow, SlotCol, SlotType),
     NextSlotRow is SlotRow + 1,
     NextSlotCol is SlotCol + 1,
     diagonal(BoardState, NextSlotRow, NextSlotCol, SlotTypes).
 
 diagonal(BoardState, SlotRow, SlotCol, [SlotType, -1]):-
-    (board_size(SlotRow);board_size(SlotCol)),
+    (
+        board_size(SlotRow);
+        board_size(SlotCol)
+    ),
     slot_by_index(BoardState, SlotRow, SlotCol, SlotType).
 
 diagonal_index_by_slot(SlotRow, SlotCol, Index):-
@@ -137,12 +131,17 @@ diagonal_index_by_slot(SlotRow, SlotCol, Index):-
     diagonal_index_by_slot(PrevSlotRow, PrevSlotCol, Index).
 
 diagonal_index_by_slot(SlotRow, SlotCol, Index):-
-    (SlotRow = 0 ; SlotCol = 0),
-    (   SlotCol = 0, !,
+    (
+        SlotRow = 0;
+        SlotCol = 0
+    ),
+    (
+        SlotCol = 0, !,
         board_size(BoardSize),
         HalfSize is ceil(BoardSize / 2),
         Index is HalfSize + SlotRow
-    );(
+    );
+    (
         board_size(BoardSize),
         HalfSize is ceil(BoardSize / 2),
         Index is HalfSize - SlotCol
@@ -152,41 +151,7 @@ diagonal_by_slot(BoardState, SlotRow, SlotCol, Diagonal):-
     diagonal_index_by_slot(SlotRow, SlotCol, DiagonalIndex),
     diagonal(BoardState, DiagonalIndex, Diagonal).
 
-
 next_slot_location(SlotRow, SlotCol, direction(X,Y), NextSlotRow, NextSlotCol):-
     NextSlotRow is SlotRow + X,
     NextSlotCol is SlotCol + Y.
 
-legal_move(PlayerColor, [PlayerBall, PlayerBall, PlayerBall, OtherPlayerBall, OtherPlayerBall, NoBall | _]):-
-    validate_colors(PlayerColor, PlayerBall,OtherPlayerBall, NoBall).
-
-legal_move(PlayerColor, [PlayerBall, PlayerBall, PlayerBall, OtherPlayerBall, NoBall | _]):-
-    validate_colors(PlayerColor, PlayerBall,OtherPlayerBall, NoBall).
-
-legal_move(PlayerColor, [PlayerBall, PlayerBall, PlayerBall, NoBall | _]):-
-    validate_colors(PlayerColor, PlayerBall, _, NoBall).
-
-legal_move(PlayerColor, [PlayerBall, PlayerBall, OtherPlayerBall, NoBall | _]):-
-    validate_colors(PlayerColor, PlayerBall,OtherPlayerBall, NoBall).
-
-legal_move(PlayerColor, [PlayerBall, PlayerBall, NoBall | _]):-
-    validate_colors(PlayerColor, PlayerBall, _, NoBall).
-
-legal_move(PlayerColor, [PlayerBall, NoBall | _]):-
-    validate_colors(PlayerColor, PlayerBall, _, NoBall).
-
-
-validate_colors(PlayerColor, PlayerBall, OtherPlayerBall, NoBall):-
-    slot_legend(PlayerBall, PlayerColor),
-    (slot_legend(NoBall, empty) ; slot_legend(NoBall, border)),
-    other_player(PlayerColor, OtherPlayerBall),
-    slot_legend(OtherPlayerBall, OtherPlayerBall).
-
-
-% TODO
-% % alters board state and player scores if necessary
-% make_move(move(FirstBall, Direction)).
-
-% % TODO
-% % a "move" object, defines a legal move
-% move(BoardState, PlayerColor, RowIndex, ColIndex, Direction, NextBoardState).

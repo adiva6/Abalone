@@ -1,8 +1,3 @@
-%% -----------------------------------------------------------------------------
-%% Import necessary board utilities
-:- [board].
-%% -----------------------------------------------------------------------------
-
 % Display the board's current state
 display_board(BoardSize, BoardState):-
     display_top_border(BoardSize),
@@ -98,7 +93,7 @@ print_row_state([-1|RestOfSlots]):-
 % Print the board's row according to its current state
 print_row_state([CurrentSlot|RestOfSlots]):-
     (
-        CurrentSlot = 0, slot_legend(EmptySymbol, empty), write(EmptySymbol), !;
+        CurrentSlot = 0, write('.'), !;
         write(CurrentSlot)
     ),
     write(' '),

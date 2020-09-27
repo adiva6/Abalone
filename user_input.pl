@@ -73,9 +73,10 @@ pick_row_number(BoardSize, Row):-
 pick_col_number(BoardSize, Col):-
     repeat,
     (
-        read(UserInput),
+        get_char(UserInput),
+        char_code(UserInput, UserInputCode),
         UpperLimit is 65 + BoardSize,
-        between(65, UpperLimit, UserInput),
+        between(65, UpperLimit, UserInputCode),
         letter_to_col_num(UserInput, Col), !;
         writeln("Invalid input. Please enter a valid column letter."),
         fail

@@ -1,14 +1,15 @@
+:- dynamic difficulty_level/1.
 % -------------------------------------------------------------------------------
 % Import necessary modules
-:- [user_input, board, gui, board_generator].
+:- [user_input, board, gui, board_generator, alpha_beta].
 % -------------------------------------------------------------------------------
 
 % Computer player "thinks" and makes a move
-% TODO: method will use dfs to find move with best score, and call move(BestMove)
 computer_turn(Player, BoardState, NewBoardState):-
-    % TODO: use bfs (/ dfs) to find best move
-    % make_move(BestMove)
-    !.
+    difficulty_level(Level),
+    Depth is 3 * Level,
+    alphabeta(Player, Depth, BoardState, -10000, 10000, NewBoardState, _),
+    human_player_turn(Player, NewBoardState, _).
 
 % Player is asked to make a move, selected move is made
 human_player_turn(Player, BoardState, NewBoardState):-

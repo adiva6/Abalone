@@ -1,3 +1,9 @@
+
+% -------------------------------------------------------------------------------
+% Import necessary modules
+:- [board, gui].
+% -------------------------------------------------------------------------------
+
 init_board(BoardSize, InitialBoard):-
     MatrixSize is BoardSize + 2,
     generate_list(1, MatrixSize, -1, FirstRow),
@@ -7,6 +13,46 @@ init_board(BoardSize, InitialBoard):-
     generate_white_side(BoardSize, WhiteRows),
     generate_list(1, MatrixSize, -1, LastRow),
     long_conc([[FirstRow], BlackRows, EmptyRows, WhiteRows, [LastRow]], InitialBoard).
+
+% generate board after a left / right move
+generate_changed_board(BoardState, FirstChangedSlotRow, FirstChangedSlotCol, direction(0, Y), NextSlotsSequence, NextBoardState):-
+    board_size(BoardSize),
+    % Get before & after rows
+    BeforeRowIndex is FirstChangedSlotRow - 1,
+    AfterRowIndex is FirstChangedSlotRow + 1,
+    BottomBorderIndex is BoardSize + 1,
+    findall(
+        Row, 
+        (row(BoardState, RowIndex, Row), between(0, BeforeRowIndex, RowIndex)), 
+        BeforeRows
+    ),
+    findall(
+        Row, 
+        (row(BoardState, RowIndex, Row), between(AfterRowIndex, BottomBorderIndex, RowIndex)), 
+        AfterRows
+    ),
+
+    % Generate changed row
+    slots_sequence_by_direction(BoardState, BoardSize, FirstChangedSlotRow, FirstChangedSlotCol, direction(0, Y), CurrSlotTypes),
+    row(BoardState, FirstChangedSlotRow, ChangedRow),
+    ((
+        Y > 0, !,
+        append([UnchangedSlotTypes, CurrSlotTypes], ChangedRow), !,
+        append([UnchangedSlotTypes, NextSlotsSequence], NextEffectedRow)
+    )
+    ;
+    (
+        reverse(NextSlotsSequence, OrientedNextSlotsSequence),
+        reverse(CurrSlotTypes, OrientedCurrSlotTypes),
+        append([OrientedCurrSlotTypes, UnchangedSlotTypes], ChangedRow), !,
+        append([OrientedNextSlotsSequence, UnchangedSlotTypes], NextEffectedRow)
+    )),
+    % Build board state from rows
+    long_conc([BeforeRows, [NextEffectedRow], AfterRows], NextBoardState).
+
+% TODO: support other directions
+% generate_changed_board(BoardState, FirstChangedSlotRow, FirstChangedSlotCol, direction(X, Y), NextSlotsSequence, NextBoardState):-
+% X /= 0.
 
 long_conc([], []). % Concatenation of an empty list is an empty list
 long_conc([[]|ListsTail], ResultTail):- % First list in the list of lists is empty

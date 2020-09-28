@@ -17,15 +17,19 @@ possible_moves_by_direction(Player, BoardState, SourceRow, SourceCol, DestRow, D
 % Matches for the slots following the location of the moving marble, according to the
 % given direction.
 slots_sequence_by_direction(BoardState, BoardSize, SourceRow, SourceCol, Direction, [SlotType|SlotTypes]):-
-    between(0, BoardSize, SourceRow),
-    between(0, BoardSize, SourceCol), !,
+    LateralBorderRowIndex is BoardSize + 1,
+    between(0, LateralBorderRowIndex, SourceRow),
+    between(0, LateralBorderRowIndex, SourceCol), !,
     slot_by_index(BoardState, SourceRow, SourceCol, SlotType),
     next_slot_location(SourceRow, SourceCol, Direction, NextRowIndex, NextColIndex),
     slots_sequence_by_direction(BoardState, BoardSize, NextRowIndex, NextColIndex, Direction, SlotTypes), !.
 
 slots_sequence_by_direction(_, BoardSize, SourceRow, SourceCol, _, []):-
-    not(between(0, BoardSize, SourceRow));
-    not(between(0, BoardSize, SourceCol)).
+    LateralBorderRowIndex is BoardSize + 1,
+    (
+        not(between(0, LateralBorderRowIndex, SourceRow));
+        not(between(0, LateralBorderRowIndex, SourceCol))
+    ).
 
 % True if moving the marble in the source location towards the given direction
 % is considered a legal move.
@@ -70,10 +74,34 @@ validate_colors(PlayerColor, PlayerBall, OtherPlayerBall, NoBall, Border):-
     other_player(PlayerColor, OtherPlayer),
     slot_legend(OtherPlayerBall, OtherPlayer).
 
-% TODO
-% % alters board state and player scores if necessary
-% make_move(move(FirstBall, Direction)).
 
-% % TODO
-% % a "move" object, defines a legal move
-% move(BoardState, PlayerColor, RowIndex, ColIndex, Direction, NextBoardState).
+killer_move(PlayerColor, [PlayerBall, PlayerBall, PlayerBall, OtherPlayerBall, OtherPlayerBall, Border | _]):-
+    validate_colors(PlayerColor, PlayerBall,OtherPlayerBall, _, Border).
+
+killer_move(PlayerColor, [PlayerBall, PlayerBall, PlayerBall, OtherPlayerBall, Border | _]):-
+    validate_colors(PlayerColor, PlayerBall,OtherPlayerBall, _, Border).
+
+killer_move(PlayerColor, [PlayerBall, PlayerBall, OtherPlayerBall, Border | _]):-
+    validate_colors(PlayerColor, PlayerBall,OtherPlayerBall, _, Border).
+
+% Move (can be used to make move by passing NextBoardState result back to game handler)
+move(BoardState, PlayerColor, RowIndex, ColIndex, Direction, NextBoardState):-
+    board_size(BoardSize),
+    legal_move(PlayerColor, BoardState, RowIndex, ColIndex, Direction),!,
+    slots_sequence_by_direction(BoardState, BoardSize, RowIndex, ColIndex, Direction, EffectedSlotsState),
+    move_slots_forward_in_line(PlayerColor, EffectedSlotsState, NextEffectedSlotsState),
+    generate_changed_board(BoardState, RowIndex, ColIndex, Direction, NextEffectedSlotsState, NextBoardState).
+
+move_slots_forward_in_line(PlayerColor, CurrSlotsState, NextSlotsState):-
+    member(0, CurrSlotsState), 
+    (
+        append([MovedBalls, [0], StaticBalls], CurrSlotsState), !,
+        append([[0], MovedBalls, StaticBalls], NextSlotsState)
+    );
+    (
+        other_player(PlayerColor, OtherPlayerColor),
+        slot_legend(OtherPlayerBall, OtherPlayerColor),
+        append([MovedBalls, [-1], Border], CurrSlotsState), !,
+        select(OtherPlayerBall, MovedBalls, BallsLeftInGame), !,
+        append([[0], BallsLeftInGame, [-1], Border], NextSlotsState)
+    ).

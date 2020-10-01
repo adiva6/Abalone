@@ -4,7 +4,7 @@
 
 alphabeta(Player, Depth, BoardState, Alpha, Beta, GoodState, Val):-
     Depth > 0,
-    moves(Player, BoardState, PossibleStates), !,
+    possible_states(Player, BoardState, PossibleStates), !,
     NewDepth is Depth - 1,
     boundedbest(Player, NewDepth, PossibleStates, Alpha, Beta, GoodState, Val);
     centerability_score(BoardState, Val).

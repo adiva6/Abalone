@@ -97,7 +97,6 @@ killer_move(PlayerColor, [PlayerBall, PlayerBall, OtherPlayerBall, Border | _]):
 % Move (can be used to make move by passing NextBoardState result back to game handler)
 move(BoardState, PlayerColor, RowIndex, ColIndex, Direction, NextBoardState):-
     board_size(BoardSize),
-    legal_move(PlayerColor, BoardState, RowIndex, ColIndex, Direction),!,
     slots_sequence_by_direction(BoardState, BoardSize, RowIndex, ColIndex, Direction, EffectedSlotsState),
     move_slots_forward_in_line(PlayerColor, EffectedSlotsState, NextEffectedSlotsState),
     generate_changed_board(BoardState, RowIndex, ColIndex, Direction, NextEffectedSlotsState, NextBoardState).

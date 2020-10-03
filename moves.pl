@@ -3,6 +3,16 @@
 :- [board].
 % -------------------------------------------------------------------------------
 
+possible_states(Player, BoardState, PossibleStates):-
+    slot_legend(BallColor, Player),
+    findall(NextBoardState,
+            (
+                slot_by_index(BoardState, Row, Col, BallColor),
+                possible_moves_by_location(Player, BoardState, Row, Col, _, _, Direction),
+                move(BoardState, Player, Row, Col, Direction, NextBoardState)
+            ),
+            PossibleStates).
+
 % Matches for legal destinations given the current board state and
 % the location of the marble to move.
 possible_moves_by_location(Player, BoardState, SourceRow, SourceCol, DestRow, DestCol, direction(X, Y)):-
@@ -87,7 +97,6 @@ killer_move(PlayerColor, [PlayerBall, PlayerBall, OtherPlayerBall, Border | _]):
 % Move (can be used to make move by passing NextBoardState result back to game handler)
 move(BoardState, PlayerColor, RowIndex, ColIndex, Direction, NextBoardState):-
     board_size(BoardSize),
-    legal_move(PlayerColor, BoardState, RowIndex, ColIndex, Direction),!,
     slots_sequence_by_direction(BoardState, BoardSize, RowIndex, ColIndex, Direction, EffectedSlotsState),
     move_slots_forward_in_line(PlayerColor, EffectedSlotsState, NextEffectedSlotsState),
     generate_changed_board(BoardState, RowIndex, ColIndex, Direction, NextEffectedSlotsState, NextBoardState).

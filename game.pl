@@ -7,11 +7,12 @@
 % Computer player "thinks" and makes a move
 computer_turn(Player, BoardState, BoardSize, NewBoardState):-
     difficulty_level(Level),
-    Depth is 3 * Level,
+    Depth is 2 * Level,
     alphabeta(Player, Depth, BoardState, -10000, 10000, NewBoardState, _),
-    display_board(BoardSize, BoardState),
+    display_board(BoardSize, NewBoardState),
     nl,
-    human_player_turn(Player, NewBoardState, _).
+    other_player(Player, OtherPlayer),
+    human_player_turn(OtherPlayer, NewBoardState, BoardSize, _).
 
 % Player is asked to make a move, selected move is made
 human_player_turn(Player, BoardState, BoardSize, NewBoardState):-

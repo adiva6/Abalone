@@ -9,7 +9,7 @@ computer_turn(Player, BoardState, BoardSize, NewBoardState):-
     difficulty_level(Level),
     Depth is 2 * Level,
     alphabeta(Player, Depth, BoardState, -10000, 10000, NewBoardState, _),
-    display_board(BoardSize, BoardState),
+    display_board(BoardSize, NewBoardState),
     nl,
     human_player_turn(Player, NewBoardState, BoardSize, _).
 

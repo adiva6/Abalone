@@ -28,13 +28,13 @@ pick_difficulty_level(Level):-
     writeln("2: Intermediate"),
     writeln("3: Expert"),
     repeat,
-    get_single_char(UserInputCode),
-    number_codes(UserInput, [UserInputCode]),
     (
-        between(1, 3, UserInput), !,
+        read_string(UserInput),
+        number_string(UserInputNumber, UserInput),
+        between(1, 3, UserInputNumber), !,
         retractall(difficulty_level(_)),
-        assert(difficulty_level(UserInput)),
-        Level = UserInput, !;
+        assert(difficulty_level(UserInputNumber)),
+        Level = UserInputNumber, !;
         writeln("Invalid input. Please enter a valid difficulty level."),
         fail
     ).
@@ -97,10 +97,10 @@ pick_possible_move(BoardState, Player, Row, Column, Direction):-
     print_moves(1, Row, ColumnLetter, PossibleMoves),
     repeat,
     (
-        get_single_char(UserInputCode),
-        number_codes(UserInput, [UserInputCode]),
-        between(1, MovesAmount, UserInput),
-        MoveIndex is UserInput - 1,
+        read_string(UserInput),
+        number_string(UserInputNumber, UserInput),
+        between(1, MovesAmount, UserInputNumber),
+        MoveIndex is UserInputNumber - 1,
         nth0(MoveIndex, PossibleMoves, Direction-(_:_)), !;
         writeln("Invalid input. Please pick one of the moves above."),
         fail

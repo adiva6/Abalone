@@ -7,13 +7,13 @@
 pick_board_size(BoardSize):-
     writeln("Please select a board size (must be an odd number between 7 and 17):"),
     repeat,
-    read(UserInput),
+    read_string(UserInput),
     (
-        integer(UserInput),
-        between(7, 17, UserInput),
-        Remainder is mod(UserInput, 2),
+        number_string(UserInputNumber, UserInput),
+        between(7, 17, UserInputNumber),
+        Remainder is mod(UserInputNumber, 2),
         Remainder = 1,
-        BoardSize = UserInput,
+        BoardSize = UserInputNumber,
         retractall(board_size(_)),
         assert(board_size(BoardSize)), 
         !;
@@ -31,11 +31,10 @@ pick_difficulty_level(Level):-
     get_single_char(UserInputCode),
     number_codes(UserInput, [UserInputCode]),
     (
-        (UserInput = 1, Level = easy), !;
-        (UserInput = 2, Level = intermediate), !;
-        (UserInput = 3, Level = expert), !,
+        between(1, 3, UserInput), !,
         retractall(difficulty_level(_)),
-        assert(difficulty_level(Level)), !;
+        assert(difficulty_level(UserInput)),
+        Level = UserInput, !;
         writeln("Invalid input. Please enter a valid difficulty level."),
         fail
     ).
@@ -45,13 +44,14 @@ pick_difficulty_level(Level):-
 pick_ball_to_move(BoardState, Player, Row, Column):-
     board_size(BoardSize),
     writeln("Pick a ball to move. The ball will push other balls in the direction you choose."),
-    writeln("Row number:"),
     repeat,
     (
+        writeln("Row number:"),
         pick_row_number(BoardSize, Row),
         writeln("Column letter:"),
         pick_col_number(BoardSize, Column),
-        slot_by_index(BoardState, Row, Column, Player), !;
+        slot_legend(BallColor, Player),
+        slot_by_index(BoardState, Row, Column, BallColor), !;
         writeln("Invalid input. Please pick a ball as your color."),
         fail
     ).
@@ -61,9 +61,10 @@ pick_ball_to_move(BoardState, Player, Row, Column):-
 pick_row_number(BoardSize, Row):-
     repeat,
     (
-        read(UserInput),
-        between(1, BoardSize, UserInput),
-        Row = UserInput, !;
+        read_string(UserInput),
+        number_string(UserInputNumber, UserInput),
+        between(1, BoardSize, UserInputNumber),
+        Row = UserInputNumber, !;
         writeln("Invalid input. Please enter a valid row number."),
         fail
     ).
@@ -73,9 +74,11 @@ pick_row_number(BoardSize, Row):-
 pick_col_number(BoardSize, Col):-
     repeat,
     (
-        read(UserInput),
+        read_string(UserInput),
+        string_length(UserInput, 1),
+        char_code(UserInput, UserInputCode),
         UpperLimit is 65 + BoardSize,
-        between(65, UpperLimit, UserInput),
+        between(65, UpperLimit, UserInputCode),
         letter_to_col_num(UserInput, Col), !;
         writeln("Invalid input. Please enter a valid column letter."),
         fail
@@ -115,3 +118,8 @@ print_moves(MoveIndex, SourceRow, SourceColLetter, [CurrentMove|Moves]):-
     print_moves(NextMoveIndex, SourceRow, SourceColLetter, Moves), !.
 
 print_moves(_, _, _, []):- !.
+
+read_string(String) :-
+    current_input(Input),
+    read_line_to_codes(Input, Codes),
+    string_codes(String, Codes).

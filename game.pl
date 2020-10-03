@@ -5,19 +5,21 @@
 % -------------------------------------------------------------------------------
 
 % Computer player "thinks" and makes a move
-computer_turn(Player, BoardState, NewBoardState):-
+computer_turn(Player, BoardState, BoardSize, NewBoardState):-
     difficulty_level(Level),
     Depth is 3 * Level,
     alphabeta(Player, Depth, BoardState, -10000, 10000, NewBoardState, _),
+    display_board(BoardSize, BoardState),
+    nl,
     human_player_turn(Player, NewBoardState, _).
 
 % Player is asked to make a move, selected move is made
-human_player_turn(Player, BoardState, NewBoardState):-
+human_player_turn(Player, BoardState, BoardSize, NewBoardState):-
     pick_ball_to_move(BoardState, Player, Row, Column),
     pick_possible_move(BoardState, Player, Row, Column, Direction),
     move(BoardState, Player, Row, Column, Direction, NewBoardState),
     other_player(Player, OtherPlayer),
-    computer_turn(OtherPlayer, NewBoardState, _).
+    computer_turn(OtherPlayer, NewBoardState, BoardSize, _).
 
 
 % Repeatedly plays turns of players (human, computer, human...) until someone wins
@@ -27,4 +29,5 @@ run_game():-
     pick_board_size(BoardSize),
     init_board(BoardSize, BoardState),
     display_board(BoardSize, BoardState),
-    human_player_turn(white, BoardState, _).
+    nl,
+    human_player_turn(white, BoardState, BoardSize, _).

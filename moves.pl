@@ -95,7 +95,7 @@ move(BoardState, PlayerColor, RowIndex, ColIndex, Direction, NextBoardState):-
 % Matches a slots sequence's state to it's next state after a move forward
 move_slots_forward_in_line(PlayerColor, CurrSlotsState, NextSlotsState):-
     % In both cases, an empty slot is revealed at the beginning of the sequnece
-    member(0, CurrSlotsState), 
+    member(0, CurrSlotsState),
     (
         % If there is an empty slot in the sequence, the balls before this slot will move forward to this slot
         append([MovedBalls, [0], StaticBalls], CurrSlotsState), !,

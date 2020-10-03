@@ -3,6 +3,16 @@
 :- [board].
 % -------------------------------------------------------------------------------
 
+possible_states(Player, BoardState, PossibleStates):-
+    slot_legend(BallColor, Player),
+    findall(NextBoardState,
+            (
+                slot_by_index(BoardState, Row, Col, BallColor),
+                possible_moves_by_location(Player, BoardState, Row, Col, _, _, Direction),
+                move(BoardState, Player, Row, Col, Direction, NextBoardState)
+            ),
+            PossibleStates).
+
 % Matches for legal destinations given the current board state and
 % the location of the marble to move.
 possible_moves_by_location(Player, BoardState, SourceRow, SourceCol, DestRow, DestCol, direction(X, Y)):-

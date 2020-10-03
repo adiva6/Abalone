@@ -1,5 +1,5 @@
 % -------------------------------------------------------------------------------
-:- [heuristics, board].
+:- [heuristics, board, moves].
 % -------------------------------------------------------------------------------
 
 alphabeta(Player, Depth, BoardState, Alpha, Beta, GoodState, Val):-
@@ -9,7 +9,7 @@ alphabeta(Player, Depth, BoardState, Alpha, Beta, GoodState, Val):-
     boundedbest(Player, NewDepth, PossibleStates, Alpha, Beta, GoodState, Val);
     centerability_score(BoardState, Val).
 
-boundedbest(Player, Depth, [BoardState|PossibleStates], Alpha, Beta, GoodState, GoodVal) :-
+boundedbest(Player, Depth, [BoardState|PossibleStates], Alpha, Beta, GoodState, GoodVal):-
     other_player(Player, OtherPlayer),
     alphabeta(OtherPlayer, Depth, BoardState, Alpha, Beta, _, Val),
     goodenough(Depth, PossibleStates, Alpha, Beta, BoardState, Val, GoodState, GoodVal).

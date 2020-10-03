@@ -76,4 +76,4 @@ validate_colors(PlayerColor, PlayerBall, OtherPlayerBall, NoBall, Border):-
 
 % % TODO
 % % a "move" object, defines a legal move
-% move(BoardState, PlayerColor, RowIndex, ColIndex, Direction, NextBoardState).
+move(BoardState, PlayerColor, RowIndex, ColIndex, Direction, NextBoardState).

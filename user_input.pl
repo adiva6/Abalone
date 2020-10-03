@@ -31,11 +31,10 @@ pick_difficulty_level(Level):-
     get_single_char(UserInputCode),
     number_codes(UserInput, [UserInputCode]),
     (
-        (UserInput = 1, Level = easy), !;
-        (UserInput = 2, Level = intermediate), !;
-        (UserInput = 3, Level = expert), !,
+        between(1, 3, UserInput), !,
         retractall(difficulty_level(_)),
-        assert(difficulty_level(Level)), !;
+        assert(difficulty_level(UserInput)),
+        Level = UserInput, !;
         writeln("Invalid input. Please enter a valid difficulty level."),
         fail
     ).

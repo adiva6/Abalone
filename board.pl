@@ -49,9 +49,9 @@ col_num_to_letter(ColNum, Letter):-
     char_code(Letter, LetterCode).
 
 % matches slot content, depends on board state
-slot_by_index(BoardState, RowIndex, ColIndex, Slot):-
-    nth0(RowIndex, BoardState, RowSlots),
-    nth0(ColIndex, RowSlots, Slot).
+slot_by_index(BoardState, RowIndex, ColIndex, SlotType):-
+    nth0(RowIndex, BoardState, RowSlotTypes),
+    nth0(ColIndex, RowSlotTypes, SlotType).
 
 % matches slot that contain a white ball, depends on board state
 white_ball(BoardState, RowIndex, ColIndex):-

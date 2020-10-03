@@ -1,3 +1,9 @@
+
+% -------------------------------------------------------------------------------
+% Import necessary modules
+:- [board, gui].
+% -------------------------------------------------------------------------------
+
 init_board(BoardSize, InitialBoard):-
     MatrixSize is BoardSize + 2,
     generate_list(1, MatrixSize, -1, FirstRow),
@@ -6,13 +12,97 @@ init_board(BoardSize, InitialBoard):-
     generate_empty_rows(0, NumberOfEmptyRows, BoardSize, EmptyRows),
     generate_white_side(BoardSize, WhiteRows),
     generate_list(1, MatrixSize, -1, LastRow),
-    long_conc([[FirstRow], BlackRows, EmptyRows, WhiteRows, [LastRow]], InitialBoard).
+    append([[FirstRow], BlackRows, EmptyRows, WhiteRows, [LastRow]], InitialBoard).
 
-long_conc([], []). % Concatenation of an empty list is an empty list
-long_conc([[]|ListsTail], ResultTail):- % First list in the list of lists is empty
-    long_conc(ListsTail, ResultTail).
-long_conc([[X|FirstListTail]|ListsTail], [X|ResultTail]):- % First list in the list of lists contains more than one element
-    long_conc([FirstListTail|ListsTail], ResultTail).
+% Generate board after a horizontal move
+generate_changed_board(BoardState, FirstChangedSlotRow, FirstChangedSlotCol, direction(0, Y), NextSequence, NextBoardState):-
+    board_size(BoardSize),
+    % Get before & after rows
+    LastBeforeRowIndex is FirstChangedSlotRow - 1,
+    FirstAfterRowIndex is FirstChangedSlotRow + 1,
+    LastAfterRowIndex is BoardSize + 1,
+    findall(
+        Row, 
+        (between(0, LastBeforeRowIndex, RowIndex), row(BoardState, RowIndex, Row)), 
+        BeforeRows
+    ),
+    findall(
+        Row, 
+        (between(FirstAfterRowIndex, LastAfterRowIndex, RowIndex), row(BoardState, RowIndex, Row)), 
+        AfterRows
+    ),
+
+    % Generate changed row
+    slots_sequence_by_direction(BoardState, BoardSize, FirstChangedSlotRow, FirstChangedSlotCol, direction(0, Y), CurrSequence),
+    % Select changed row
+    row(BoardState, FirstChangedSlotRow, ChangedRow),
+    ((
+        % If direction is positive, curr slot sequence is the rest of the changed line - just swap it with next sequence
+        Y > 0, !,
+        append([UnchangedSlotTypes, CurrSequence], ChangedRow), !,
+        append([UnchangedSlotTypes, NextSequence], NextEffectedRow)
+    )
+    ;
+    (
+        % Else, orient curr and next slot sequences, and swap them, they are the beginning of the row.
+        reverse(NextSequence, OrientedNextSequence),
+        reverse(CurrSequence, OrientedCurrSequence),
+        append([OrientedCurrSequence, UnchangedSlotTypes], ChangedRow), !,
+        append([OrientedNextSequence, UnchangedSlotTypes], NextEffectedRow)
+    )),
+    % Build board state from rows
+    append([BeforeRows, [NextEffectedRow], AfterRows], NextBoardState).
+
+% Generate board after a vertical move
+generate_changed_board(BoardState, FirstChangedSlotRow, FirstChangedSlotCol, direction(X, Y), NextSequence, NextBoardState):-
+    X \= 0, !,
+    board_size(BoardSize),
+    length(NextSequence, NumOfChangedRows),
+% Calculate last changed slot's row index (last in sequence, not necessarily bottom changed row),
+% while omitting last row in sequence (border is static)
+    LastChangedSlotRow is FirstChangedSlotRow + (X * (NumOfChangedRows - 2)),
+    
+    % Get before & after rows
+    UpperChangedRow is min(FirstChangedSlotRow, LastChangedSlotRow),
+    LowerChangedRow is max(FirstChangedSlotRow, LastChangedSlotRow),
+    LastBeforeRowIndex is UpperChangedRow - 1,
+    FirstAfterRowIndex is LowerChangedRow + 1,
+    LastAfterRowIndex is BoardSize + 1,
+    findall(
+        Row, 
+        (between(0, LastBeforeRowIndex, RowIndex), row(BoardState, RowIndex, Row)), 
+        BeforeRows
+    ),
+    findall(
+        Row, 
+        (between(FirstAfterRowIndex, LastAfterRowIndex, RowIndex), row(BoardState, RowIndex, Row)), 
+        AfterRows
+    ),
+    % Get changed rows (might be reversed, if direction is vertically negative)
+    generate_changed_rows(BoardState, (FirstChangedSlotRow,FirstChangedSlotCol), direction(X,Y), NextSequence, NextChangedRows), !,
+    ((
+        X > 0, !,
+        OrientedNextChangedRows = NextChangedRows
+    );(
+        reverse(NextChangedRows, OrientedNextChangedRows)
+    )),
+    % Concat the new oriented rows and unchanged rows and recieve the new board state
+    append([BeforeRows, OrientedNextChangedRows, AfterRows], NextBoardState).
+
+% Generates changed rows, ordered by vertical direction.
+generate_changed_rows(BoardState, (RowIndex,ColIndex), direction(X,Y), [NextSlot|NextSlots], [NextChangedRow|NextChangedRows]):-
+    NextSlots \= [], !,
+    row(BoardState, RowIndex, CurrChangedRow),
+    append([BeforeCols,[_], AfterCols], CurrChangedRow),
+    length(BeforeCols, ColIndex),
+    append([BeforeCols, [NextSlot], AfterCols], NextChangedRow),
+    NextRowIndex is RowIndex + X,
+    NextColIndex is ColIndex + Y,
+    generate_changed_rows(BoardState, (NextRowIndex,NextColIndex), direction(X,Y), NextSlots, NextChangedRows).
+
+% Last row is not changed, it's appended as part of the before/after rows
+generate_changed_rows(_, _, _, [-1], []).
+
 
 balls_amount_by_board_size(BoardSize, BallsAmount):-
     BallsAmount is BoardSize + ceil(BoardSize / 2).

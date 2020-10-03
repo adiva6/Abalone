@@ -41,31 +41,31 @@ legal_move(Player, BoardState, SourceRow, SourceCol, Direction):-
     legal_move(Player, Slots).
 
 legal_move(PlayerColor, [PlayerBall, PlayerBall, PlayerBall, OtherPlayerBall, OtherPlayerBall, NoBall | _]):-
-    validate_colors(PlayerColor, PlayerBall,OtherPlayerBall, NoBall, _).
+    validate_colors(PlayerColor, PlayerBall, OtherPlayerBall, NoBall, _), !.
 
 legal_move(PlayerColor, [PlayerBall, PlayerBall, PlayerBall, OtherPlayerBall, OtherPlayerBall, Border | _]):-
-    validate_colors(PlayerColor, PlayerBall,OtherPlayerBall, _, Border).
+    validate_colors(PlayerColor, PlayerBall, OtherPlayerBall, _, Border), !.
 
 legal_move(PlayerColor, [PlayerBall, PlayerBall, PlayerBall, OtherPlayerBall, NoBall | _]):-
-    validate_colors(PlayerColor, PlayerBall,OtherPlayerBall, NoBall, _).
+    validate_colors(PlayerColor, PlayerBall, OtherPlayerBall, NoBall, _), !.
 
 legal_move(PlayerColor, [PlayerBall, PlayerBall, PlayerBall, OtherPlayerBall, Border | _]):-
-    validate_colors(PlayerColor, PlayerBall,OtherPlayerBall, _, Border).
+    validate_colors(PlayerColor, PlayerBall, OtherPlayerBall, _, Border), !.
 
 legal_move(PlayerColor, [PlayerBall, PlayerBall, PlayerBall, NoBall | _]):-
-    validate_colors(PlayerColor, PlayerBall, _, NoBall, _).
+    validate_colors(PlayerColor, PlayerBall, _, NoBall, _), !.
 
 legal_move(PlayerColor, [PlayerBall, PlayerBall, OtherPlayerBall, NoBall | _]):-
-    validate_colors(PlayerColor, PlayerBall,OtherPlayerBall, NoBall, _).
+    validate_colors(PlayerColor, PlayerBall, OtherPlayerBall, NoBall, _), !.
 
 legal_move(PlayerColor, [PlayerBall, PlayerBall, OtherPlayerBall, Border | _]):-
-    validate_colors(PlayerColor, PlayerBall,OtherPlayerBall, _, Border).
+    validate_colors(PlayerColor, PlayerBall, OtherPlayerBall, _, Border), !.
 
 legal_move(PlayerColor, [PlayerBall, PlayerBall, NoBall | _]):-
-    validate_colors(PlayerColor, PlayerBall, _, NoBall, _).
+    validate_colors(PlayerColor, PlayerBall, _, NoBall, _), !.
 
 legal_move(PlayerColor, [PlayerBall, NoBall | _]):-
-    validate_colors(PlayerColor, PlayerBall, _, NoBall, _).
+    validate_colors(PlayerColor, PlayerBall, _, NoBall, _), !.
 
 validate_colors(PlayerColor, PlayerBall, OtherPlayerBall, NoBall, Border):-
     slot_legend(PlayerBall, PlayerColor),
@@ -76,13 +76,13 @@ validate_colors(PlayerColor, PlayerBall, OtherPlayerBall, NoBall, Border):-
 
 
 killer_move(PlayerColor, [PlayerBall, PlayerBall, PlayerBall, OtherPlayerBall, OtherPlayerBall, Border | _]):-
-    validate_colors(PlayerColor, PlayerBall,OtherPlayerBall, _, Border).
+    validate_colors(PlayerColor, PlayerBall, OtherPlayerBall, _, Border).
 
 killer_move(PlayerColor, [PlayerBall, PlayerBall, PlayerBall, OtherPlayerBall, Border | _]):-
-    validate_colors(PlayerColor, PlayerBall,OtherPlayerBall, _, Border).
+    validate_colors(PlayerColor, PlayerBall, OtherPlayerBall, _, Border).
 
 killer_move(PlayerColor, [PlayerBall, PlayerBall, OtherPlayerBall, Border | _]):-
-    validate_colors(PlayerColor, PlayerBall,OtherPlayerBall, _, Border).
+    validate_colors(PlayerColor, PlayerBall, OtherPlayerBall, _, Border).
 
 % Move (can be used to make move by passing NextBoardState result back to game handler)
 move(BoardState, PlayerColor, RowIndex, ColIndex, Direction, NextBoardState):-
@@ -92,13 +92,17 @@ move(BoardState, PlayerColor, RowIndex, ColIndex, Direction, NextBoardState):-
     move_slots_forward_in_line(PlayerColor, EffectedSlotsState, NextEffectedSlotsState),
     generate_changed_board(BoardState, RowIndex, ColIndex, Direction, NextEffectedSlotsState, NextBoardState).
 
+% Matches a slots sequence's state to it's next state after a move forward
 move_slots_forward_in_line(PlayerColor, CurrSlotsState, NextSlotsState):-
+    % In both cases, an empty slot is revealed at the beginning of the sequnece
     member(0, CurrSlotsState), 
     (
+        % If there is an empty slot in the sequence, the balls before this slot will move forward to this slot
         append([MovedBalls, [0], StaticBalls], CurrSlotsState), !,
         append([[0], MovedBalls, StaticBalls], NextSlotsState)
     );
     (
+        % Otherwise, last ball (of other player) will be removed, the rest will move forward
         other_player(PlayerColor, OtherPlayerColor),
         slot_legend(OtherPlayerBall, OtherPlayerColor),
         append([MovedBalls, [-1], Border], CurrSlotsState), !,

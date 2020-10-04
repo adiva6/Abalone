@@ -9,7 +9,7 @@ init_board(BoardSize, InitialBoard):-
     generate_list(1, MatrixSize, -1, FirstRow),
     generate_black_side(BoardSize, BlackRows),
     NumberOfEmptyRows is BoardSize - 6,
-    generate_empty_rows(0, NumberOfEmptyRows, BoardSize, EmptyRows),
+    generate_empty_rows(NumberOfEmptyRows, BoardSize, EmptyRows),
     generate_white_side(BoardSize, WhiteRows),
     generate_list(1, MatrixSize, -1, LastRow),
     append([[FirstRow], BlackRows, EmptyRows, WhiteRows, [LastRow]], InitialBoard).
@@ -103,19 +103,52 @@ generate_changed_rows(BoardState, (RowIndex,ColIndex), direction(X,Y), [NextSlot
 % Last row is not changed, it's appended as part of the before/after rows
 generate_changed_rows(_, _, _, [-1], []).
 
-
 balls_amount_by_board_size(BoardSize, BallsAmount):-
     BallsAmount is BoardSize + ceil(BoardSize / 2).
 
-generate_empty_rows(CurrentRowNumber, NumberOfRows, BoardSize, [Row|Rows]):-
+generate_empty_rows(NumberOfRows, BoardSize, Rows):-
+    HalfNumber is (NumberOfRows - 1) / 2,
+    generate_first_empty_half(0, HalfNumber, BoardSize, FirstHalfRowsReversed),
+    reverse(FirstHalfRowsReversed, FirstHalfRows),
+    MiddleRow = [-1|Slots],
+    generate_list(0, BoardSize, 0, Slots),
+    generate_last_empty_half(0, HalfNumber, BoardSize, LastHalfRows),
+    append([FirstHalfRows, [MiddleRow], LastHalfRows], Rows), !.
+
+generate_first_empty_half(CurrentRowNumber, NumberOfRows, BoardSize, [Row|Rows]):-
     CurrentRowNumber < NumberOfRows, !,
     Row = [-1|Slots],
-    Length is BoardSize - abs(ceil(NumberOfRows / 2) - CurrentRowNumber - 1) + 1,
-    generate_list(1, Length, 0, Slots),
+    NumberOfEmptySlots is BoardSize - CurrentRowNumber - 1,
+    generate_empty_row(0, NumberOfEmptySlots, BoardSize, Slots),
     NextRowNumber is CurrentRowNumber + 1,
-    generate_empty_rows(NextRowNumber, NumberOfRows, BoardSize, Rows), !.
+    generate_first_empty_half(NextRowNumber, NumberOfRows, BoardSize, Rows), !.
 
-generate_empty_rows(NumberOfRows, NumberOfRows, _, []):- !.
+generate_first_empty_half(NumberOfRows, NumberOfRows, _, []):- !.
+
+generate_empty_row(CurrentIndex, NumberOfEmptySlots, BoardSize, [Slot|Slots]):-
+    CurrentIndex < NumberOfEmptySlots, !,
+    Slot = 0,
+    NextIndex is CurrentIndex + 1,
+    generate_empty_row(NextIndex, NumberOfEmptySlots, BoardSize, Slots), !.
+
+generate_empty_row(CurrentIndex, NumberOfEmptySlots, BoardSize, [-1|Slots]):-
+    CurrentIndex =< BoardSize, !,
+    NextIndex is CurrentIndex + 1,
+    generate_empty_row(NextIndex, NumberOfEmptySlots, BoardSize, Slots), !.
+
+generate_empty_row(CurrentIndex, _, BoardSize, []):-
+    CurrentIndex > BoardSize, !.
+
+generate_last_empty_half(CurrentRowNumber, NumberOfRows, BoardSize, [Row|Rows]):-
+    CurrentRowNumber < NumberOfRows, !,
+    ReversedRow = [-1|Slots],
+    NumberOfEmptySlots is BoardSize - CurrentRowNumber - 1,
+    generate_empty_row(0, NumberOfEmptySlots, BoardSize, Slots),
+    reverse(ReversedRow, Row),
+    NextRowNumber is CurrentRowNumber + 1,
+    generate_last_empty_half(NextRowNumber, NumberOfRows, BoardSize, Rows), !.
+
+generate_last_empty_half(NumberOfRows, NumberOfRows, _, []):- !.
 
 generate_black_side(BoardSize, [Row1, Row2, Row3]):-
     Row1 = [-1|Slots1],

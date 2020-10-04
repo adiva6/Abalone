@@ -7,8 +7,7 @@
 % Computer player "thinks" and makes a move
 computer_turn(Player, BoardState, BoardSize, NewBoardState):-
     difficulty_level(Level),
-    Depth is 2 * Level,
-    alphabeta(Player, Depth, BoardState, -10000, 10000, NewBoardState, _),
+    alphabeta(Player, Level, BoardState, -10000, 10000, NewBoardState, _),
     display_board(BoardSize, NewBoardState),
     nl,
     not(is_game_over(Player, BoardState)),

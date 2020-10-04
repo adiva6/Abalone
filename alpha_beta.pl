@@ -1,5 +1,6 @@
 % -------------------------------------------------------------------------------
-:- [heuristics, board, moves].
+% Import necessary modules
+:- [heuristics, board, moves, utils].
 % -------------------------------------------------------------------------------
 
 alphabeta(Player, Depth, BoardState, Alpha, Beta, GoodState, Val):-

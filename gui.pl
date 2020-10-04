@@ -1,3 +1,8 @@
+% -------------------------------------------------------------------------------
+% Import necessary modules
+:- [utils].
+% -------------------------------------------------------------------------------
+
 % Display the board's current state
 display_board(BoardSize, BoardState):-
     display_top_border(BoardSize),
@@ -132,3 +137,16 @@ display_bottom_border(BoardSize):-
     print_char_repeat(' ', 1, SpaceLimit),
     SeparatorLimit is BoardSize + 1,
     print_char_repeat('-', 1, SeparatorLimit).
+
+% Display a list of given moves as an indexed list
+print_moves(MoveIndex, SourceRow, SourceColLetter, [CurrentMove|Moves]):-
+    CurrentMove = _-(PossibleRow:PossibleCol),
+    write(MoveIndex), write(": "),
+    col_num_to_letter(PossibleCol, PossibleColLetter),
+    write(SourceRow), write(SourceColLetter), write(" -> "),
+    write(PossibleRow), write(PossibleColLetter),
+    nl,
+    NextMoveIndex is MoveIndex + 1,
+    print_moves(NextMoveIndex, SourceRow, SourceColLetter, Moves), !.
+
+print_moves(_, _, _, []):- !.

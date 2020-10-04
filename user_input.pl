@@ -1,6 +1,6 @@
 % -------------------------------------------------------------------------------
-% Import board utilities and moves predicates
-:- [board, moves].
+% Import necessary modules
+:- [board, moves, gui, utils].
 % -------------------------------------------------------------------------------
 
 % Get the board size as input from the user
@@ -105,19 +105,6 @@ pick_possible_move(BoardState, Player, Row, Column, Direction):-
         writeln("Invalid input. Please pick one of the moves above."),
         fail
     ).
-
-% Display a list of given moves as an indexed list
-print_moves(MoveIndex, SourceRow, SourceColLetter, [CurrentMove|Moves]):-
-    CurrentMove = _-(PossibleRow:PossibleCol),
-    write(MoveIndex), write(": "),
-    col_num_to_letter(PossibleCol, PossibleColLetter),
-    write(SourceRow), write(SourceColLetter), write(" -> "),
-    write(PossibleRow), write(PossibleColLetter),
-    nl,
-    NextMoveIndex is MoveIndex + 1,
-    print_moves(NextMoveIndex, SourceRow, SourceColLetter, Moves), !.
-
-print_moves(_, _, _, []):- !.
 
 read_string(String) :-
     current_input(Input),

@@ -1,6 +1,6 @@
 % -------------------------------------------------------------------------------
-% Import board utilities and moves predicates
-:- [board, moves, gui].
+% Import necessary modules
+:- [board, moves, gui, utils].
 % -------------------------------------------------------------------------------
 
 % Get the board size as input from the user

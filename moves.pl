@@ -99,7 +99,7 @@ move(BoardState, PlayerColor, RowIndex, ColIndex, Direction, NextBoardState):-
     board_size(BoardSize),
     slots_sequence_by_direction(BoardState, BoardSize, RowIndex, ColIndex, Direction, EffectedSlotsState),
     move_slots_forward_in_line(PlayerColor, EffectedSlotsState, NextEffectedSlotsState),
-    generate_changed_board(BoardState, RowIndex, ColIndex, Direction, NextEffectedSlotsState, NextBoardState).
+    generate_changed_board(BoardState, RowIndex, ColIndex, Direction, NextEffectedSlotsState, NextBoardState), !.
 
 % Matches a slots sequence's state to it's next state after a move forward
 move_slots_forward_in_line(PlayerColor, CurrSlotsState, NextSlotsState):-

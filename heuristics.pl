@@ -21,13 +21,16 @@ centerability_score(BoardState, HeuristicValue):-
 
 % Get a list of locations and sum up their distances from the center
 % of the board
-calculate_distance_from_center(BoardCenter, [CurrentLocation|Locations], TotalDistance):-
-    CurrentLocation = RowIndex:ColIndex,
-    CurrentLocationDistance is abs(RowIndex - BoardCenter) + abs(ColIndex - BoardCenter),
-    calculate_distance_from_center(BoardCenter, Locations, RestOfDistance),
-    TotalDistance is CurrentLocationDistance + RestOfDistance.
+calculate_distance_from_center(BoardCenter, Locations, TotalDistance):-
+    calculate_distance_from_center(BoardCenter, Locations, 0, TotalDistance).
 
-calculate_distance_from_center(_, [], 0):- !.
+calculate_distance_from_center(BoardCenter, [CurrLocation|Locations], RestOfDistance, TotalDistance):-
+    CurrLocation = RowIndex:ColIndex,
+    CurrLocationDistance is abs(RowIndex - BoardCenter) + abs(ColIndex - BoardCenter),
+    CurrTotalDistance is CurrLocationDistance + RestOfDistance,
+    calculate_distance_from_center(BoardCenter, Locations, CurrTotalDistance, TotalDistance).
+
+calculate_distance_from_center(_, [], TotalDistance, TotalDistance):- !.
 
 % % level of threeability, based on number of triples in a row of each player's balls
 % % score will be stored in db and changed along with board state

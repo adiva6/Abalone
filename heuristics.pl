@@ -12,7 +12,7 @@
 total_heuristic_score(BoardState, HeuristicValue):-
     centerability_score(BoardState, CenterabilityScore),
     killability_score(BoardState, KillabilityScore),
-    HeuristicValue is CenterabilityScore + (100 ** KillabilityScore), !.
+    HeuristicValue is CenterabilityScore + KillabilityScore, !.
 
 % Level of centerability, based on distance from center of each player's balls
 centerability_score(BoardState, HeuristicValue):-
@@ -22,7 +22,7 @@ centerability_score(BoardState, HeuristicValue):-
     findall(RowIndex:ColIndex, white_ball(BoardState, RowIndex, ColIndex), WhiteLocations),
     calculate_distance_from_center(BoardCenter, BlackLocations, BlackDistance),
     calculate_distance_from_center(BoardCenter, WhiteLocations, WhiteDistance),
-    HeuristicValue is BlackDistance - WhiteDistance.
+    HeuristicValue is BlackDistance - WhiteDistance, !.
 
 % Get a list of locations and sum up their distances from the center
 % of the board
@@ -41,4 +41,6 @@ calculate_distance_from_center(_, [], TotalDistance, TotalDistance):- !.
 killability_score(BoardState, HeuristicValue):-
     score(black, BoardState, BlackScore),
     score(white, BoardState, WhiteScore),
-    HeuristicValue is BlackScore - WhiteScore.
+    ExpBlackScore is 2 ** BlackScore,
+    ExpWhiteScore is 2 ** WhiteScore,
+    HeuristicValue is ExpBlackScore - ExpWhiteScore, !.

@@ -10,7 +10,7 @@ computer_turn(Player, BoardState, BoardSize, NewBoardState):-
     alphabeta(Player, Level, BoardState, -10000, 10000, NewBoardState, _),
     display_board(BoardSize, NewBoardState),
     nl,
-    not(is_game_over(Player, BoardState)),
+    not(is_game_over(Player, NewBoardState)),
     other_player(Player, OtherPlayer),
     human_player_turn(OtherPlayer, NewBoardState, BoardSize, _).
 
@@ -19,7 +19,7 @@ human_player_turn(Player, BoardState, BoardSize, NewBoardState):-
     pick_ball_to_move(BoardState, Player, Row, Column),
     pick_possible_move(BoardState, Player, Row, Column, Direction),
     move(BoardState, Player, Row, Column, Direction, NewBoardState),
-    not(is_game_over(Player, BoardState)),
+    not(is_game_over(Player, NewBoardState)),
     display_board(BoardSize, NewBoardState),
     nl,
     press_to_continue,

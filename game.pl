@@ -38,8 +38,17 @@ run_game():-
     nl,
     human_player_turn(white, BoardState, BoardSize, _).
 
-% Matches if the Player won the game (6 of the opponent's balls were pushed over)
+% Matches if the Player won the game (his score is 6 or above)
 is_game_over(Player, BoardState):-
+    score(Player, BoardState, Score),
+    (
+        Score >= 6,
+        format("Game over! The ~w player won!", [Player]);
+        fail
+    ), !.
+
+% Matches when score equals the number of balls the player managed to push over
+score(Player, BoardState, Score):-
     other_player(Player, OtherPlayer),
     slot_legend(BallColor, OtherPlayer),
     findall(Row:Col,
@@ -48,8 +57,4 @@ is_game_over(Player, BoardState):-
     length(OtherPlayerBalls, OtherPlayerBallsCount),
     board_size(BoardSize),
     balls_amount_by_board_size(BoardSize, BallsAmount),
-    (
-        OtherPlayerBallsCount =< BallsAmount - 6,
-        format("Game over! The ~w player won!", [Player]);
-        fail
-    ), !.
+    Score is BallsAmount - OtherPlayerBallsCount.

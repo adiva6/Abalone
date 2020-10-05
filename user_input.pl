@@ -106,7 +106,11 @@ pick_possible_move(BoardState, Player, Row, Column, Direction):-
         fail
     ).
 
-read_string(String) :-
+read_string(String):-
     current_input(Input),
     read_line_to_codes(Input, Codes),
     string_codes(String, Codes).
+
+press_to_continue :-
+    writeln("Press any key to let the computer play..."),
+    get_single_char(_).

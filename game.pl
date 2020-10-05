@@ -20,6 +20,10 @@ human_player_turn(Player, BoardState, BoardSize, NewBoardState):-
     pick_possible_move(BoardState, Player, Row, Column, Direction),
     move(BoardState, Player, Row, Column, Direction, NewBoardState),
     not(is_game_over(Player, BoardState)),
+    display_board(BoardSize, NewBoardState),
+    nl,
+    press_to_continue,
+    nl,
     other_player(Player, OtherPlayer),
     computer_turn(OtherPlayer, NewBoardState, BoardSize, _).
 

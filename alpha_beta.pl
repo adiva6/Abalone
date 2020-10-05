@@ -8,7 +8,7 @@ alphabeta(Player, Depth, BoardState, Alpha, Beta, GoodState, Val):-
     possible_states(Player, BoardState, PossibleStates), !,
     NewDepth is Depth - 1,
     boundedbest(Player, NewDepth, PossibleStates, Alpha, Beta, GoodState, Val);
-    centerability_score(BoardState, Val).
+    total_heuristic_score(BoardState, Val).
 
 boundedbest(Player, Depth, [BoardState|PossibleStates], Alpha, Beta, GoodState, GoodVal):-
     other_player(Player, OtherPlayer),

@@ -98,9 +98,12 @@ generate_changed_rows(BoardState, (RowIndex,ColIndex), direction(X,Y), [NextSlot
 % Last row is not changed, it's appended as part of the before/after rows
 generate_changed_rows(_, _, _, [-1], []).
 
+% BallsAmount is the initial amount of balls each player should have in the beginning
+% of the game
 balls_amount_by_board_size(BoardSize, BallsAmount):-
     BallsAmount is BoardSize + ceil(BoardSize / 2).
 
+% Generate the empty rows in the middle of the initial board
 generate_empty_rows(NumberOfRows, BoardSize, Rows):-
     HalfNumber is (NumberOfRows - 1) / 2,
     generate_first_empty_half(0, HalfNumber, BoardSize, FirstHalfRowsReversed),
@@ -110,6 +113,7 @@ generate_empty_rows(NumberOfRows, BoardSize, Rows):-
     generate_last_empty_half(0, HalfNumber, BoardSize, LastHalfRows),
     append([FirstHalfRows, [MiddleRow], LastHalfRows], Rows), !.
 
+% Generate the upper half of empty rows in the middle of the initial board
 generate_first_empty_half(CurrentRowNumber, NumberOfRows, BoardSize, [Row|Rows]):-
     CurrentRowNumber < NumberOfRows, !,
     Row = [-1|Slots],
@@ -120,6 +124,7 @@ generate_first_empty_half(CurrentRowNumber, NumberOfRows, BoardSize, [Row|Rows])
 
 generate_first_empty_half(NumberOfRows, NumberOfRows, _, []):- !.
 
+% Generate a row of empty slots
 generate_empty_row(CurrentIndex, NumberOfEmptySlots, BoardSize, [Slot|Slots]):-
     CurrentIndex < NumberOfEmptySlots, !,
     Slot = 0,
@@ -134,6 +139,7 @@ generate_empty_row(CurrentIndex, NumberOfEmptySlots, BoardSize, [-1|Slots]):-
 generate_empty_row(CurrentIndex, _, BoardSize, []):-
     CurrentIndex > BoardSize, !.
 
+% Generate the lower half of empty rows in the middle of the initial board
 generate_last_empty_half(CurrentRowNumber, NumberOfRows, BoardSize, [Row|Rows]):-
     CurrentRowNumber < NumberOfRows, !,
     ReversedRow = [-1|Slots],
@@ -145,6 +151,8 @@ generate_last_empty_half(CurrentRowNumber, NumberOfRows, BoardSize, [Row|Rows]):
 
 generate_last_empty_half(NumberOfRows, NumberOfRows, _, []):- !.
 
+% Generate the 3 upper rows of the initial board, that contain the balls of the
+% black player
 generate_black_side(BoardSize, [Row1, Row2, Row3]):-
     Row1 = [-1|Slots1],
     Row2 = [-1|Slots2],
@@ -158,6 +166,8 @@ generate_black_side(BoardSize, [Row1, Row2, Row3]):-
     Row3BallsNumber is BallsAmount - Row1BallsNumber - Row2BallsNumber,
     generate_balls(0, BoardSize, Row3Size, Row3BallsNumber, 'B', Slots3).
 
+% Generate the 3 lower rows of the initial board, that contain the balls of the
+% white player
 generate_white_side(BoardSize, [Row3, Row2, Row1]):-
     Row1Reversed = [-1|Slots1],
     Row2Reversed = [-1|Slots2],
@@ -174,6 +184,8 @@ generate_white_side(BoardSize, [Row3, Row2, Row1]):-
     reverse(Row2, Row2Reversed),
     reverse(Row3, Row3Reversed), !.
 
+% Generate a row with BallsNumber as the amount of balls in the middle of the row,
+% colored with BallColor
 generate_balls(CurrentIndex, BoardSize, RowSize, BallsNumber, BallColor, [Slot|Slots]):-
     CurrentIndex < RowSize,
     (
@@ -203,6 +215,7 @@ generate_balls(CurrentIndex, BoardSize, RowSize, BallsNumber, BallColor, [-1|Slo
 generate_balls(CurrentIndex, BoardSize, _, _, _, []):-
     CurrentIndex > BoardSize, !.
 
+% Generate a list the size of Length with Content in each of its cells
 generate_list(CurrentIndex, Length, Content, [Content|Slots]):-
     CurrentIndex < Length, !,
     NextIndex is CurrentIndex + 1,

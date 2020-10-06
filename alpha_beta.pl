@@ -1,8 +1,3 @@
-% -------------------------------------------------------------------------------
-% Import necessary modules
-:- [heuristics, board, moves, utils].
-% -------------------------------------------------------------------------------
-
 alphabeta(Player, Depth, BoardState, Alpha, Beta, GoodState, Val):-
     Depth > 0,
     possible_states(Player, BoardState, PossibleStates), !,

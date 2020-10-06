@@ -3,11 +3,6 @@
 % considered as the max player
 % -------------------------------------------------------------------------------
 
-% -------------------------------------------------------------------------------
-% Import necessary board utilities
-:- [board].
-% -------------------------------------------------------------------------------
-
 % Heuristic value is based on the sum of centerability and killability scores
 total_heuristic_score(BoardState, HeuristicValue):-
     centerability_score(BoardState, CenterabilityScore),

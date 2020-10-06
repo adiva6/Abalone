@@ -1,9 +1,3 @@
-:- dynamic difficulty_level/1.
-% -------------------------------------------------------------------------------
-% Import necessary modules
-:- [user_input, board, gui, board_generator, alpha_beta, utils].
-% -------------------------------------------------------------------------------
-
 % Computer player "thinks" and makes a move
 computer_turn(Player, BoardState, BoardSize, NewBoardState):-
     difficulty_level(Level),

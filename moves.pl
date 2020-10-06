@@ -1,8 +1,5 @@
-% -------------------------------------------------------------------------------
-% Import board utilities
-:- [board, utils].
-% -------------------------------------------------------------------------------
-
+% Generate all possible states that can develop from the current BoardState
+% after a move by Player
 possible_states(Player, BoardState, PossibleStates):-
     slot_legend(BallColor, Player),
     findall(NextBoardState,

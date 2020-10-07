@@ -33,9 +33,3 @@ betterof(Player, BoardState, Val, _, Val1, BoardState, Val):-
     max_to_move(Player), Val > Val1, !.
 
 betterof(_, _, _, BoardState, Val1, BoardState, Val1).
-
-min_to_move(Player):-
-    Player = white.
-
-max_to_move(Player):-
-    Player = black.

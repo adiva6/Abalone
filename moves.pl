@@ -1,8 +1,5 @@
-% -------------------------------------------------------------------------------
-% Import board utilities
-:- [board, utils].
-% -------------------------------------------------------------------------------
-
+% Generate all possible states that can develop from the current BoardState
+% after a move by Player
 possible_states(Player, BoardState, PossibleStates):-
     slot_legend(BallColor, Player),
     findall(NextBoardState,
@@ -17,12 +14,8 @@ possible_states(Player, BoardState, PossibleStates):-
 % the location of the marble to move.
 possible_moves_by_location(Player, BoardState, SourceRow, SourceCol, DestRow, DestCol, direction(X, Y)):-
     direction(X, Y),
-    possible_moves_by_direction(Player, BoardState, SourceRow, SourceCol, DestRow, DestCol, direction(X, Y)).
-
-% Matches for a legal destination for a certain direction.
-possible_moves_by_direction(Player, BoardState, SourceRow, SourceCol, DestRow, DestCol, Direction):-
-    next_slot_location(SourceRow, SourceCol, Direction, DestRow, DestCol),
-    legal_move(Player, BoardState, SourceRow, SourceCol, Direction).
+    next_slot_location(SourceRow, SourceCol, direction(X, Y), DestRow, DestCol),
+    legal_move(Player, BoardState, SourceRow, SourceCol, direction(X, Y)).
 
 % Matches for the slots following the location of the moving marble, according to the
 % given direction.
@@ -83,7 +76,6 @@ validate_colors(PlayerColor, PlayerBall, OtherPlayerBall, NoBall, Border):-
     slot_legend(Border, border),
     other_player(PlayerColor, OtherPlayer),
     slot_legend(OtherPlayerBall, OtherPlayer).
-
 
 killer_move(PlayerColor, [PlayerBall, PlayerBall, PlayerBall, OtherPlayerBall, OtherPlayerBall, Border | _]):-
     validate_colors(PlayerColor, PlayerBall, OtherPlayerBall, _, Border).

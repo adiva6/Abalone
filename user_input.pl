@@ -1,8 +1,3 @@
-% -------------------------------------------------------------------------------
-% Import necessary modules
-:- [board, moves, gui, utils].
-% -------------------------------------------------------------------------------
-
 % Get the board size as input from the user
 pick_board_size(BoardSize):-
     writeln("Please select a board size (must be an odd number between 7 and 17):"),

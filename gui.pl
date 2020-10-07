@@ -1,8 +1,3 @@
-% -------------------------------------------------------------------------------
-% Import necessary modules
-:- [utils].
-% -------------------------------------------------------------------------------
-
 % Display the board's current state
 display_board(BoardSize, BoardState):-
     display_top_border(BoardSize, BoardState),

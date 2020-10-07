@@ -3,16 +3,11 @@
 % considered as the max player
 % -------------------------------------------------------------------------------
 
-% -------------------------------------------------------------------------------
-% Import necessary board utilities
-:- [board].
-% -------------------------------------------------------------------------------
-
 % Heuristic value is based on the sum of centerability and killability scores
 total_heuristic_score(BoardState, HeuristicValue):-
     centerability_score(BoardState, CenterabilityScore),
     killability_score(BoardState, KillabilityScore),
-    HeuristicValue is CenterabilityScore + KillabilityScore, !.
+    HeuristicValue is CenterabilityScore + (100 * KillabilityScore), !.
 
 % Level of centerability, based on distance from center of each player's balls
 centerability_score(BoardState, HeuristicValue):-
@@ -22,7 +17,7 @@ centerability_score(BoardState, HeuristicValue):-
     findall(RowIndex:ColIndex, white_ball(BoardState, RowIndex, ColIndex), WhiteLocations),
     calculate_distance_from_center(BoardCenter, BlackLocations, BlackDistance),
     calculate_distance_from_center(BoardCenter, WhiteLocations, WhiteDistance),
-    HeuristicValue is BlackDistance - WhiteDistance, !.
+    HeuristicValue is WhiteDistance - BlackDistance, !.
 
 % Get a list of locations and sum up their distances from the center
 % of the board

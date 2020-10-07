@@ -1,21 +1,13 @@
-% -------------------------------------------------------------------------------
-% Import necessary modules
-:- [heuristics, board, moves, utils].
-% -------------------------------------------------------------------------------
-
 alphabeta(Player, Depth, BoardState, Alpha, Beta, GoodState, Val):-
     Depth > 0,
     possible_states(Player, BoardState, PossibleStates), !,
     NewDepth is Depth - 1,
-    Alpha1 is -Beta,
-    Beta1 is -Alpha,
-    boundedbest(Player, NewDepth, PossibleStates, Alpha1, Beta1, GoodState, Val);
+    boundedbest(Player, NewDepth, PossibleStates, Alpha, Beta, GoodState, Val);
     total_heuristic_score(BoardState, Val).
 
 boundedbest(Player, Depth, [BoardState|PossibleStates], Alpha, Beta, GoodState, GoodVal):-
     other_player(Player, OtherPlayer),
-    alphabeta(OtherPlayer, Depth, BoardState, Alpha, Beta, _, MinusVal),
-    Val is -MinusVal,
+    alphabeta(OtherPlayer, Depth, BoardState, Alpha, Beta, _, Val),
     goodenough(Player, Depth, PossibleStates, Alpha, Beta, BoardState, Val, GoodState, GoodVal).
 
 goodenough(_, _, [], _, _, BoardState, Val, BoardState, Val):- !. % No other candidate
@@ -37,8 +29,8 @@ newbounds(Player, Alpha, Beta, _, Val, Alpha, Val):-
 newbounds(_, Alpha, Beta, _, _, Alpha, Beta).
 
 betterof(Player, BoardState, Val, _, Val1, BoardState, Val):-
-    min_to_move(Player), Val > Val1, !;
-    max_to_move(Player), Val < Val1, !.
+    min_to_move(Player), Val < Val1, !;
+    max_to_move(Player), Val > Val1, !.
 
 betterof(_, _, _, BoardState, Val1, BoardState, Val1).
 

@@ -1,14 +1,9 @@
-% -------------------------------------------------------------------------------
-% Import necessary modules
-:- [heuristics, board, moves, utils].
-% -------------------------------------------------------------------------------
-
 alphabeta(Player, Depth, BoardState, Alpha, Beta, GoodState, Val):-
     Depth > 0,
     possible_states(Player, BoardState, PossibleStates), !,
     NewDepth is Depth - 1,
     boundedbest(Player, NewDepth, PossibleStates, Alpha, Beta, GoodState, Val);
-    centerability_score(BoardState, Val).
+    total_heuristic_score(BoardState, Val).
 
 boundedbest(Player, Depth, [BoardState|PossibleStates], Alpha, Beta, GoodState, GoodVal):-
     other_player(Player, OtherPlayer),
@@ -34,8 +29,8 @@ newbounds(Player, Alpha, Beta, _, Val, Alpha, Val):-
 newbounds(_, Alpha, Beta, _, _, Alpha, Beta).
 
 betterof(Player, BoardState, Val, _, Val1, BoardState, Val):-
-    min_to_move(Player), Val > Val1, !;
-    max_to_move(Player), Val < Val1, !.
+    min_to_move(Player), Val < Val1, !;
+    max_to_move(Player), Val > Val1, !.
 
 betterof(_, _, _, BoardState, Val1, BoardState, Val1).
 

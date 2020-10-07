@@ -3,13 +3,13 @@
 % considered as the max player
 % -------------------------------------------------------------------------------
 
-% -------------------------------------------------------------------------------
-% Import necessary board utilities
-:- [board].
-% -------------------------------------------------------------------------------
+% Heuristic value is based on the sum of centerability and killability scores
+total_heuristic_score(BoardState, HeuristicValue):-
+    centerability_score(BoardState, CenterabilityScore),
+    killability_score(BoardState, KillabilityScore),
+    HeuristicValue is CenterabilityScore + (100 * KillabilityScore), !.
 
 % Level of centerability, based on distance from center of each player's balls
-% Score will be stored in db and changed along with board state
 centerability_score(BoardState, HeuristicValue):-
     board_size(BoardSize),
     BoardCenter is ceil(BoardSize / 2),
@@ -17,7 +17,7 @@ centerability_score(BoardState, HeuristicValue):-
     findall(RowIndex:ColIndex, white_ball(BoardState, RowIndex, ColIndex), WhiteLocations),
     calculate_distance_from_center(BoardCenter, BlackLocations, BlackDistance),
     calculate_distance_from_center(BoardCenter, WhiteLocations, WhiteDistance),
-    HeuristicValue is BlackDistance - WhiteDistance.
+    HeuristicValue is WhiteDistance - BlackDistance, !.
 
 % Get a list of locations and sum up their distances from the center
 % of the board
@@ -32,22 +32,10 @@ calculate_distance_from_center(BoardCenter, [CurrLocation|Locations], RestOfDist
 
 calculate_distance_from_center(_, [], TotalDistance, TotalDistance):- !.
 
-% % level of threeability, based on number of triples in a row of each player's balls
-% % score will be stored in db and changed along with board state
-% threeability_score(BlackScore, WhiteScore).
-
-% % level of groupability, based on number of common edges between each player's balls
-% % score will be stored in db and changed along with board state
-% groupability_score(BlackScore, WhiteScore).
-
-% % the heuristic for a move's centerability
-% centerability_diff(Move, BlackScoreDiff, WhiteScoreDiff).
-
-% % the heuristic for a move's threeability
-% threeability_diff(Move, BlackScoreDiff, WhiteScoreDiff).
-
-% % the heuristic for a move's groupability
-% groupability_diff(Move, BlackScoreDiff, WhiteScoreDiff).
-
-% % the heuristic for a move's killability (ability to kill without getting killed)
-% killability_diff(Move, BlackScoreDiff, WhiteScoreDiff).
+% Level of killability, based on the score of each player
+killability_score(BoardState, HeuristicValue):-
+    score(black, BoardState, BlackScore),
+    score(white, BoardState, WhiteScore),
+    ExpBlackScore is 2 ** BlackScore,
+    ExpWhiteScore is 2 ** WhiteScore,
+    HeuristicValue is ExpBlackScore - ExpWhiteScore, !.

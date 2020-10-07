@@ -1,26 +1,27 @@
-% -------------------------------------------------------------------------------
-% Import necessary modules
-:- [utils].
-% -------------------------------------------------------------------------------
-
 % Display the board's current state
 display_board(BoardSize, BoardState):-
-    display_top_border(BoardSize),
+    display_top_border(BoardSize, BoardState),
     nl,
     display_current_board(1, BoardSize, BoardState),
     nl,
     display_bottom_border(BoardSize).
 
 % Display the board's top border: including the top indices (A, B...) and the separator line
-display_top_border(BoardSize):-
+display_top_border(BoardSize, BoardState):-
     SpaceLimit is floor(BoardSize / 2) + 8,
     print_char_repeat(' ', 1, SpaceLimit),
     IndexLimit is ceil(BoardSize / 2),
     print_index_row('A', 1, IndexLimit),
+    write("\t\t\t Computer's score: "),
+    score(black, BoardState, BlackScore),
+    write(BlackScore),
     nl,
     SlashLimit is SpaceLimit - 1,
     print_char_repeat(' ', 1, SlashLimit),
     print_pointers_row(BoardSize),
+    write("\t\t\t       Your score: "),
+    score(white, BoardState, WhiteScore),
+    write(WhiteScore),
     nl,
     SeparatorLimit is SlashLimit - 2,
     print_char_repeat(' ', 1, SeparatorLimit),

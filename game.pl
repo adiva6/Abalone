@@ -1,16 +1,10 @@
-:- dynamic difficulty_level/1.
-% -------------------------------------------------------------------------------
-% Import necessary modules
-:- [user_input, board, gui, board_generator, alpha_beta, utils].
-% -------------------------------------------------------------------------------
-
 % Computer player "thinks" and makes a move
 computer_turn(Player, BoardState, BoardSize, NewBoardState):-
     difficulty_level(Level),
     alphabeta(Player, Level, BoardState, -10000, 10000, NewBoardState, _),
     display_board(BoardSize, NewBoardState),
     nl,
-    not(is_game_over(Player, BoardState)),
+    not(is_game_over(Player, NewBoardState)),
     other_player(Player, OtherPlayer),
     human_player_turn(OtherPlayer, NewBoardState, BoardSize, _).
 
@@ -19,7 +13,11 @@ human_player_turn(Player, BoardState, BoardSize, NewBoardState):-
     pick_ball_to_move(BoardState, Player, Row, Column),
     pick_possible_move(BoardState, Player, Row, Column, Direction),
     move(BoardState, Player, Row, Column, Direction, NewBoardState),
-    not(is_game_over(Player, BoardState)),
+    display_board(BoardSize, NewBoardState),
+    nl,
+    not(is_game_over(Player, NewBoardState)),
+    press_to_continue,
+    nl,
     other_player(Player, OtherPlayer),
     computer_turn(OtherPlayer, NewBoardState, BoardSize, _).
 
@@ -34,8 +32,17 @@ run_game():-
     nl,
     human_player_turn(white, BoardState, BoardSize, _).
 
-% Matches if the Player won the game (6 of the opponent's balls were pushed over)
+% Matches if the Player won the game (his score is 6 or above)
 is_game_over(Player, BoardState):-
+    score(Player, BoardState, Score),
+    (
+        Score >= 6,
+        format("Game over! The ~w player won!", [Player]);
+        fail
+    ), !.
+
+% Matches when score equals the number of balls the player managed to push over
+score(Player, BoardState, Score):-
     other_player(Player, OtherPlayer),
     slot_legend(BallColor, OtherPlayer),
     findall(Row:Col,
@@ -44,8 +51,4 @@ is_game_over(Player, BoardState):-
     length(OtherPlayerBalls, OtherPlayerBallsCount),
     board_size(BoardSize),
     balls_amount_by_board_size(BoardSize, BallsAmount),
-    (
-        OtherPlayerBallsCount =< BallsAmount - 6,
-        format("Game over! The ~w player won!", [Player]);
-        fail
-    ), !.
+    Score is BallsAmount - OtherPlayerBallsCount.

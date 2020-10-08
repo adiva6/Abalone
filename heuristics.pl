@@ -3,39 +3,59 @@
 % considered as the max player
 % -------------------------------------------------------------------------------
 
-% Heuristic value is based on the sum of centerability and killability scores
-total_heuristic_score(BoardState, HeuristicValue):-
-    centerability_score(BoardState, CenterabilityScore),
-    killability_score(BoardState, KillabilityScore),
-    HeuristicValue is CenterabilityScore + (100 * KillabilityScore), !.
-
-% Level of centerability, based on distance from center of each player's balls
-centerability_score(BoardState, HeuristicValue):-
+% Use all heuristics to determine how good is the move
+calculate_total_diff(RowIndex, ColIndex, Direction, SlotTypes, NextSlotTypes, ScoreDiff):-
     board_size(BoardSize),
     BoardCenter is ceil(BoardSize / 2),
-    findall(RowIndex:ColIndex, black_ball(BoardState, RowIndex, ColIndex), BlackLocations),
-    findall(RowIndex:ColIndex, white_ball(BoardState, RowIndex, ColIndex), WhiteLocations),
-    calculate_distance_from_center(BoardCenter, BlackLocations, BlackDistance),
-    calculate_distance_from_center(BoardCenter, WhiteLocations, WhiteDistance),
-    HeuristicValue is WhiteDistance - BlackDistance, !.
+    calculate_centerability_diff(BoardCenter, RowIndex, ColIndex, Direction, SlotTypes, NextSlotTypes, 0, CenterabilityDiff),
+    calculate_kill_diff(SlotTypes, KillabilityDiff), !,
+    ScoreDiff is CenterabilityDiff + KillabilityDiff.
 
-% Get a list of locations and sum up their distances from the center
-% of the board
-calculate_distance_from_center(BoardCenter, Locations, TotalDistance):-
-    calculate_distance_from_center(BoardCenter, Locations, 0, TotalDistance).
+% Check if move kills (using 'killer_move' predicate) & Return heuristic points accordingly
+calculate_kill_diff(SlotTypes, KillabilityDiff):-
+    SlotTypes = [FirstSlotType|_],
+    slot_legend(FirstSlotType, CurrPlayer),
+    (
+        killer_move(CurrPlayer, SlotTypes),
+        (
+            max_to_move(CurrPlayer), !, 
+            KillabilityDiff = 1000
+            ;
+            KillabilityDiff = -1000, !
+        );
+        KillabilityDiff = 0
+    ).
 
-calculate_distance_from_center(BoardCenter, [CurrLocation|Locations], RestOfDistance, TotalDistance):-
-    CurrLocation = RowIndex:ColIndex,
-    CurrLocationDistance is abs(RowIndex - BoardCenter) + abs(ColIndex - BoardCenter),
-    CurrTotalDistance is CurrLocationDistance + RestOfDistance,
-    calculate_distance_from_center(BoardCenter, Locations, CurrTotalDistance, TotalDistance).
+% Calculate the diff between two states (represented by curr/next sequence changed by move)
+calculate_centerability_diff(BoardCenter, RowIndex, ColIndex, Direction, 
+                     [CurrSlotType|CurrSlotTypes], [_|NextSlotTypes], CurrScoreDiff, FinalScoreDiff):-
+    CurrSlotType \= 0 , CurrSlotType \= -1, !,
+    next_slot_location(RowIndex, ColIndex, Direction, NextRowIndex, NextColIndex),
+    calculate_location_score(BoardCenter, RowIndex:ColIndex, CurrDistance),
+    calculate_location_score(BoardCenter, NextRowIndex:NextColIndex, NextDistance),
 
-calculate_distance_from_center(_, [], TotalDistance, TotalDistance):- !.
+    % Add/Reduce distances diff, depending on the player who owns the ball
+    slot_legend(CurrSlotType, Player),
+    (
+        max_to_move(Player), 
+        % Subtract current diff from current total diff if ball is owned by max player
+        % Distance from center is bad,
+        % So more distance from center of max player's ball translates to points for min player.
+        NextScoreDiff is CurrScoreDiff - (NextDistance - CurrDistance), !
+        ; 
+        NextScoreDiff is CurrScoreDiff + (NextDistance - CurrDistance), !
+    ),
+    calculate_centerability_diff(
+        BoardCenter, NextRowIndex, NextColIndex, Direction, CurrSlotTypes, NextSlotTypes, NextScoreDiff, FinalScoreDiff
+    ).
 
-% Level of killability, based on the score of each player
-killability_score(BoardState, HeuristicValue):-
-    score(black, BoardState, BlackScore),
-    score(white, BoardState, WhiteScore),
-    ExpBlackScore is 2 ** BlackScore,
-    ExpWhiteScore is 2 ** WhiteScore,
-    HeuristicValue is ExpBlackScore - ExpWhiteScore, !.
+calculate_centerability_diff(_, _, _, _, [0|_], _, FinalScoreDiff, FinalScoreDiff):- !.
+calculate_centerability_diff(_, _, _, _, [-1|_], _, FinalScoreDiff, FinalScoreDiff):- !.
+                        
+   
+% Get a location and calculate it's distance score from the center of the board
+calculate_location_score(BoardCenter, RowIndex:ColIndex, Score):-
+    Score is abs(RowIndex - BoardCenter) + abs(ColIndex - BoardCenter).
+
+min_to_move(white).
+max_to_move(black).

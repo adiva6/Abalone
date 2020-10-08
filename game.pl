@@ -1,7 +1,7 @@
 % Computer player "thinks" and makes a move
 computer_turn(Player, BoardState, BoardSize, NewBoardState):-
     difficulty_level(Level),
-    alphabeta(Player, Level, BoardState, -10000, 10000, NewBoardState, _),
+    alphabeta(Player, Level, BoardState:0, -10000, 10000, NewBoardState:_),
     display_board(BoardSize, NewBoardState),
     nl,
     not(is_game_over(Player, NewBoardState)),
@@ -12,7 +12,7 @@ computer_turn(Player, BoardState, BoardSize, NewBoardState):-
 human_player_turn(Player, BoardState, BoardSize, NewBoardState):-
     pick_ball_to_move(BoardState, Player, Row, Column),
     pick_possible_move(BoardState, Player, Row, Column, Direction),
-    move(BoardState, Player, Row, Column, Direction, NewBoardState),
+    move(BoardState, Player, Row, Column, Direction, NewBoardState:_),
     display_board(BoardSize, NewBoardState),
     nl,
     not(is_game_over(Player, NewBoardState)),
@@ -46,9 +46,11 @@ is_game_over(Player, BoardState):-
 score(Player, BoardState, Score):-
     other_player(Player, OtherPlayer),
     slot_legend(BallColor, OtherPlayer),
-    findall(Row:Col,
-            slot_by_index(BoardState, Row, Col, BallColor),
-            OtherPlayerBalls),
+    findall(
+        Row:Col,
+        slot_by_index(BoardState, Row, Col, BallColor),
+        OtherPlayerBalls
+    ),
     length(OtherPlayerBalls, OtherPlayerBallsCount),
     board_size(BoardSize),
     balls_amount_by_board_size(BoardSize, BallsAmount),

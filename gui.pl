@@ -2,7 +2,7 @@
 display_board(BoardSize, BoardState):-
     display_top_border(BoardSize, BoardState),
     nl,
-    display_current_board(1, BoardSize, BoardState),
+    display_board(1, BoardSize, BoardState),
     nl,
     display_bottom_border(BoardSize).
 
@@ -69,14 +69,14 @@ print_index_row(Char, CurrentIndex, Limit):-
 print_index_row(_, Limit, Limit).
 
 % Display the board's current state
-display_current_board(CurrentRow, BoardSize, BoardState):-
+display_board(CurrentRow, BoardSize, BoardState):-
     print_row(CurrentRow, BoardSize, BoardState),
     CurrentRow < BoardSize, !,
     NextRow is CurrentRow + 1,
     nl,
-    display_current_board(NextRow, BoardSize, BoardState).
+    display_board(NextRow, BoardSize, BoardState).
 
-display_current_board(BoardSize, BoardSize, _).
+display_board(BoardSize, BoardSize, _).
 
 % Print a single row in the current game board
 print_row(CurrentRow, BoardSize, BoardState):-

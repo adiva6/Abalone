@@ -1,14 +1,19 @@
 % Generate all possible states that can develop from the current BoardState
 % after a move by Player
-possible_states(Player, BoardState, PossibleStates):-
+possible_states(Player, BoardState:CurrPoints, PossibleStates):-
     slot_legend(BallColor, Player),
-    findall(NextBoardState,
-            (
-                slot_by_index(BoardState, Row, Col, BallColor),
-                possible_moves_by_location(Player, BoardState, Row, Col, _, _, Direction),
-                move(BoardState, Player, Row, Col, Direction, NextBoardState)
-            ),
-            PossibleStates).
+    findall(
+        NextBoardState:TotalDiff,
+        (
+            slot_by_index(BoardState, Row, Col, BallColor),
+            possible_moves_by_location(Player, BoardState, Row, Col, _, _, Direction),
+            move(BoardState, Player, Row, Col, Direction, NextBoardState:MoveDiff),
+            
+            % Each possible state's points 
+            TotalDiff is MoveDiff + CurrPoints
+        ),
+        PossibleStates
+    ).
 
 % Matches for legal destinations given the current board state and
 % the location of the marble to move.
@@ -86,11 +91,12 @@ killer_move(PlayerColor, [PlayerBall, PlayerBall, PlayerBall, OtherPlayerBall, B
 killer_move(PlayerColor, [PlayerBall, PlayerBall, OtherPlayerBall, Border | _]):-
     validate_colors(PlayerColor, PlayerBall, OtherPlayerBall, _, Border).
 
-% Move (can be used to make move by passing NextBoardState result back to game handler)
-move(BoardState, PlayerColor, RowIndex, ColIndex, Direction, NextBoardState):-
+% Move (can be used to make move by passing the resulted NextBoardState and score back to game handler)
+move(BoardState, PlayerColor, RowIndex, ColIndex, Direction, NextBoardState:MoveDiff):-
     board_size(BoardSize),
     slots_sequence_by_direction(BoardState, BoardSize, RowIndex, ColIndex, Direction, EffectedSlotsState),
     move_slots_forward_in_line(PlayerColor, EffectedSlotsState, NextEffectedSlotsState),
+    calculate_total_diff(RowIndex, ColIndex, Direction, EffectedSlotsState, NextEffectedSlotsState, MoveDiff),
     generate_changed_board(BoardState, RowIndex, ColIndex, Direction, NextEffectedSlotsState, NextBoardState), !.
 
 % Matches a slots sequence's state to it's next state after a move forward

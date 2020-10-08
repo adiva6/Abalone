@@ -3,18 +3,12 @@
 % considered as the max player
 % -------------------------------------------------------------------------------
 
-% Heuristic value is based on the sum of centerability and killability scores
-total_heuristic_score(BoardState, HeuristicValue):-
-    centerability_score(BoardState, CenterabilityScore),
-    killability_score(BoardState, KillabilityScore),
-    HeuristicValue is CenterabilityScore + (100 * KillabilityScore), !.
-
 % Use all heuristics to determine how good is the move
 calculate_total_diff(RowIndex, ColIndex, Direction, SlotTypes, NextSlotTypes, ScoreDiff):-
     board_size(BoardSize),
     BoardCenter is ceil(BoardSize / 2),
     calculate_centerability_diff(BoardCenter, RowIndex, ColIndex, Direction, SlotTypes, NextSlotTypes, 0, CenterabilityDiff),
-    calculate_kill_diff(SlotTypes, KillabilityDiff),
+    calculate_kill_diff(SlotTypes, KillabilityDiff), !,
     ScoreDiff is CenterabilityDiff + KillabilityDiff.
 
 % Check if move kills (using 'killer_move' predict) & Return heuristic points accordingly
@@ -22,10 +16,10 @@ calculate_kill_diff(SlotTypes, KillabilityDiff):-
     SlotTypes = [FirstSlotType|_],
     slot_legend(FirstSlotType, CurrPlayer),
     (
-        killer_move(CurrPlayer, SlotTypes), !,
+        killer_move(CurrPlayer, SlotTypes),
         (
-            max_to_move(CurrPlayer), 
-            KillabilityDiff = 1000, !
+            max_to_move(CurrPlayer), !, 
+            KillabilityDiff = 1000
             ;
             KillabilityDiff = -1000, !
         );
@@ -35,7 +29,7 @@ calculate_kill_diff(SlotTypes, KillabilityDiff):-
 % Calculate the diff between two states (represented by curr/next sequence changed by move)
 calculate_centerability_diff(BoardCenter, RowIndex, ColIndex, Direction, 
                      [CurrSlotType|CurrSlotTypes], [_|NextSlotTypes], CurrScoreDiff, FinalScoreDiff):-
-    CurrSlotType \= 0 , CurrSlotType \= -1,
+    CurrSlotType \= 0 , CurrSlotType \= -1, !,
     next_slot_location(RowIndex, ColIndex, Direction, NextRowIndex, NextColIndex),
     calculate_location_score(BoardCenter, RowIndex:ColIndex, CurrDistance),
     calculate_location_score(BoardCenter, NextRowIndex:NextColIndex, NextDistance),
@@ -55,8 +49,8 @@ calculate_centerability_diff(BoardCenter, RowIndex, ColIndex, Direction,
         BoardCenter, NextRowIndex, NextColIndex, Direction, CurrSlotTypes, NextSlotTypes, NextScoreDiff, FinalScoreDiff
     ).
 
-calculate_centerability_diff(_, _, _, _, [0|_], _, FinalScoreDiff, FinalScoreDiff).
-calculate_centerability_diff(_, _, _, _, [-1|_], _, FinalScoreDiff, FinalScoreDiff).
+calculate_centerability_diff(_, _, _, _, [0|_], _, FinalScoreDiff, FinalScoreDiff):- !.
+calculate_centerability_diff(_, _, _, _, [-1|_], _, FinalScoreDiff, FinalScoreDiff):- !.
                         
    
 % Get a location and calculate it's distance score from the center of the board

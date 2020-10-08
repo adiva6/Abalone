@@ -25,6 +25,7 @@ human_player_turn(Player, BoardState, BoardSize, NewBoardState):-
 % Repeatedly plays turns of players (human, computer, human...) until someone wins
 run_game():-
     writeln("Welcome to Abalone!"),
+    writeln("You can type exit anytime you want to finish the game."),
     pick_difficulty_level(_),
     pick_board_size(BoardSize),
     init_board(BoardSize, BoardState),

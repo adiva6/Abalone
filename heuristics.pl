@@ -11,7 +11,7 @@ calculate_total_diff(RowIndex, ColIndex, Direction, SlotTypes, NextSlotTypes, Sc
     calculate_kill_diff(SlotTypes, KillabilityDiff), !,
     ScoreDiff is CenterabilityDiff + KillabilityDiff.
 
-% Check if move kills (using 'killer_move' predict) & Return heuristic points accordingly
+% Check if move kills (using 'killer_move' predicate) & Return heuristic points accordingly
 calculate_kill_diff(SlotTypes, KillabilityDiff):-
     SlotTypes = [FirstSlotType|_],
     slot_legend(FirstSlotType, CurrPlayer),

@@ -45,9 +45,11 @@ is_game_over(Player, BoardState):-
 score(Player, BoardState, Score):-
     other_player(Player, OtherPlayer),
     slot_legend(BallColor, OtherPlayer),
-    findall(Row:Col,
-            slot_by_index(BoardState, Row, Col, BallColor),
-            OtherPlayerBalls),
+    findall(
+        Row:Col,
+        slot_by_index(BoardState, Row, Col, BallColor),
+        OtherPlayerBalls
+    ),
     length(OtherPlayerBalls, OtherPlayerBallsCount),
     board_size(BoardSize),
     balls_amount_by_board_size(BoardSize, BallsAmount),

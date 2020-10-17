@@ -1,11 +1,11 @@
 % Get the board size as input from the user
 pick_board_size(BoardSize):-
-    writeln("Please select a board size (must be an odd number between 7 and 13):"),
+    writeln("Please select a board size (must be an odd number between 7 and 11):"),
     repeat,
     read_string(UserInput),
     (
         number_string(UserInputNumber, UserInput),
-        between(7, 13, UserInputNumber),
+        between(7, 11, UserInputNumber),
         Remainder is mod(UserInputNumber, 2),
         Remainder = 1,
         BoardSize = UserInputNumber,

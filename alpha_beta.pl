@@ -1,13 +1,13 @@
 alphabeta(Player, Depth, BoardState, Alpha, Beta, GoodState, Val):-
     Depth > 0,
     possible_states(Player, BoardState, PossibleStates), !,
+    other_player(Player, OtherPlayer),
     NewDepth is Depth - 1,
-    boundedbest(Player, NewDepth, PossibleStates, Alpha, Beta, GoodState, Val);
+    boundedbest(OtherPlayer, NewDepth, PossibleStates, Alpha, Beta, GoodState, Val);
     total_heuristic_score(BoardState, Val).
 
 boundedbest(Player, Depth, [BoardState|PossibleStates], Alpha, Beta, GoodState, GoodVal):-
-    other_player(Player, OtherPlayer),
-    alphabeta(OtherPlayer, Depth, BoardState, Alpha, Beta, _, Val),
+    alphabeta(Player, Depth, BoardState, Alpha, Beta, _, Val),
     goodenough(Player, Depth, PossibleStates, Alpha, Beta, BoardState, Val, GoodState, GoodVal).
 
 goodenough(_, _, [], _, _, BoardState, Val, BoardState, Val):- !. % No other candidate
@@ -29,13 +29,11 @@ newbounds(Player, Alpha, Beta, _, Val, Alpha, Val):-
 newbounds(_, Alpha, Beta, _, _, Alpha, Beta).
 
 betterof(Player, BoardState, Val, _, Val1, BoardState, Val):-
-    min_to_move(Player), Val < Val1, !;
-    max_to_move(Player), Val > Val1, !.
+    min_to_move(Player), Val > Val1, !;
+    max_to_move(Player), Val < Val1, !.
 
 betterof(_, _, _, BoardState, Val1, BoardState, Val1).
 
-min_to_move(Player):-
-    Player = white.
+min_to_move(white).
 
-max_to_move(Player):-
-    Player = black.
+max_to_move(black).
